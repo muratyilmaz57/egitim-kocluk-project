@@ -25,5 +25,8 @@
   },
   "devDependencies": {
     "mysqldump": "^3.2.0"
+  },
+  "dependencies": {
+    "xlsx": "^0.18.5"
   }
 }
