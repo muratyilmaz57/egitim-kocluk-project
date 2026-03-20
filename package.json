@@ -16,6 +16,7 @@
     "start:prod:api": "node apps/api/dist/main.js",
     "deploy:staging": "node scripts/deploy-plesk.mjs staging",
     "deploy:prod": "node scripts/deploy-plesk.mjs production",
+    "setup:deploy-secrets": "node scripts/setup-deploy-secrets.mjs",
     "lint:web": "npm run lint --workspace @kocluk/web",
     "prisma:generate": "npx prisma generate --schema prisma/schema.prisma",
     "prisma:migrate": "npx prisma migrate dev --schema prisma/schema.prisma",

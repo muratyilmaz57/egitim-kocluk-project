@@ -1,5 +1,6 @@
 import { cpSync, existsSync, mkdirSync, readFileSync, rmSync } from "node:fs";
 import { resolve } from "node:path";
+import { homedir } from "node:os";
 import { execFileSync } from "node:child_process";
 
 const projectRoot = resolve(process.cwd());
@@ -7,12 +8,19 @@ const target = process.argv[2] || process.env.DEPLOY_ENV_NAME || "staging";
 const isProduction = target === "production";
 
 function loadEnvFile() {
-  const envFile = process.env.DEPLOY_ENV_FILE;
-  if (!envFile) {
+  const requestedEnvFile = process.env.DEPLOY_ENV_FILE;
+  const defaultCandidates = [
+    resolve(homedir(), ".config", "kocluk-proje", `.env.deploy.${target}`),
+    resolve(homedir(), ".kocluk-proje", `.env.deploy.${target}`),
+  ];
+  const fullPath = requestedEnvFile
+    ? resolve(projectRoot, requestedEnvFile)
+    : defaultCandidates.find((candidate) => existsSync(candidate));
+
+  if (!fullPath) {
     return;
   }
 
-  const fullPath = resolve(projectRoot, envFile);
   if (!existsSync(fullPath)) {
     throw new Error(`Deploy env file not found: ${fullPath}`);
   }

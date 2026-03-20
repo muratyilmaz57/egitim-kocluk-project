@@ -32,6 +32,7 @@ Plesk uzerinden Linux sunucuya yayin akisi icin ayrintili adimlar:
 
 - [docs/plesk-deploy.md](/Users/fatmatekyilmaz/Desktop/kocluk-proje/docs/plesk-deploy.md)
 - [docs/git-workflow.md](/Users/fatmatekyilmaz/Desktop/kocluk-proje/docs/git-workflow.md)
+- [docs/deploy-secrets.md](/Users/fatmatekyilmaz/Desktop/kocluk-proje/docs/deploy-secrets.md)
 
 ## Git ve coklu cihaz calisma
 
@@ -51,6 +52,24 @@ Onerilen branch yapisi:
 - `hotfix/...`: acil canli duzeltmeleri
 
 Windows PC'de de ayni repo yapisiyla sorunsuz calisabilirsiniz. Bu repo icin satir sonlari [/.gitattributes](/Users/fatmatekyilmaz/Desktop/kocluk-proje/.gitattributes) ile normalize edildi.
+
+Deploy secret dosyalari repoya konmaz. Onerilen kullanim:
+
+```bash
+npm run setup:deploy-secrets
+```
+
+Bu komut her makinede repo disinda su dosyalari olusturur:
+
+- `~/.config/kocluk-proje/.env.deploy.staging`
+- `~/.config/kocluk-proje/.env.deploy.production`
+
+Sonrasinda ek env vermeden su komutlar calisir:
+
+```bash
+npm run deploy:staging
+npm run deploy:prod
+```
 
 ## Not
 

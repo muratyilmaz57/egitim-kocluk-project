@@ -76,11 +76,30 @@ git push -u origin feature/<is-adi>
 - `develop` -> staging
 - `main` -> production
 
+## Deploy secret duzeni
+
+Gercek deploy secret'larini repo icinde tutmayin. Her bilgisayarda repo disi dosya kullanin:
+
+- `~/.config/kocluk-proje/.env.deploy.staging`
+- `~/.config/kocluk-proje/.env.deploy.production`
+
+Ilk kurulum:
+
+```bash
+npm run setup:deploy-secrets
+```
+
 Deploy komutlari:
 
 ```bash
-DEPLOY_ENV_FILE=.env.deploy.staging npm run deploy:staging
-DEPLOY_ENV_FILE=.env.deploy.production npm run deploy:prod
+npm run deploy:staging
+npm run deploy:prod
+```
+
+Istersen farkli bir dosya da kullanabilirsin:
+
+```bash
+DEPLOY_ENV_FILE=/absolute/path/to/.env.deploy.staging npm run deploy:staging
 ```
 
 ## Reboya girmemesi gerekenler
@@ -102,13 +121,3 @@ Bu kurallar [/.gitignore](/Users/fatmatekyilmaz/Desktop/kocluk-proje/.gitignore)
 - Terminal olarak `PowerShell` veya `Git Bash` kullanabilirsiniz.
 - Satir sonlari repo tarafinda normalize edildigi icin `CRLF/LF` sorunu beklenmez.
 - Gercek secret dosyalarini OneDrive veya benzeri genel klasorlerde tutmayin.
-
-## Bu makinedeki mevcut kisit
-
-Bu Mac uzerinde `git` komutu su an Apple Xcode lisans onayi olmadan calismiyor. Repo yapisi hazir, ancak `git init` komutunu calistirmak icin once terminalde asagidaki sistem adimi tamamlanmali:
-
-```bash
-sudo xcodebuild -license
-```
-
-Bu tamamlandiginda ilk init/push akisi yukaridaki komutlarla dogrudan yapilabilir.
