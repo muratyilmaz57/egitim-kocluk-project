@@ -4,6 +4,7 @@ import { FocusTrendChart } from "@web/components/dashboard/focus-trend-chart";
 import { SectionCard } from "@web/components/dashboard/section-card";
 import { StatCard } from "@web/components/dashboard/stat-card";
 import { StatusBreakdown } from "@web/components/dashboard/status-breakdown";
+import { AppIcon } from "@web/components/ui/app-icon";
 import { redirect } from "next/navigation";
 import {
   formatDate,
@@ -42,34 +43,44 @@ export default async function DashboardPage() {
           label: "Toplam ogrenci",
           value: String(summary.totalStudents),
           meta: "Canli veritabani ozeti",
+          icon: "students" as const,
+          tone: "teal" as const,
         },
         {
           label: "Aktif ders",
           value: String(summary.totalLessons),
           meta: "Programdaki aktif dersler",
+          icon: "lessons" as const,
+          tone: "sky" as const,
         },
         {
           label: "Bugun tamamlanan gorev",
           value: String(summary.completedTasksToday),
           meta: "Gun icindeki kapanan gorevler",
+          icon: "tasks" as const,
+          tone: "amber" as const,
         },
         {
           label: "Gunluk toplam calisma",
           value: formatMinutes(summary.dailyStudyMinutes),
           meta: "Pomodoro odak suresi",
+          icon: "focus" as const,
+          tone: "violet" as const,
         },
         {
           label: "Okunmamis mesaj",
           value: String(summary.unreadMessages),
           meta: `Genel tamamlama %${summary.overallCompletionPercent}`,
+          icon: "messages" as const,
+          tone: "rose" as const,
         },
       ]
     : [
-        { label: "Toplam ogrenci", value: "-", meta: "API baglantisi bekleniyor" },
-        { label: "Aktif ders", value: "-", meta: "API baglantisi bekleniyor" },
-        { label: "Bugun tamamlanan gorev", value: "-", meta: "API baglantisi bekleniyor" },
-        { label: "Gunluk toplam calisma", value: "-", meta: "API baglantisi bekleniyor" },
-        { label: "Okunmamis mesaj", value: "-", meta: "API baglantisi bekleniyor" },
+        { label: "Toplam ogrenci", value: "-", meta: "API baglantisi bekleniyor", icon: "students" as const, tone: "teal" as const },
+        { label: "Aktif ders", value: "-", meta: "API baglantisi bekleniyor", icon: "lessons" as const, tone: "sky" as const },
+        { label: "Bugun tamamlanan gorev", value: "-", meta: "API baglantisi bekleniyor", icon: "tasks" as const, tone: "amber" as const },
+        { label: "Gunluk toplam calisma", value: "-", meta: "API baglantisi bekleniyor", icon: "focus" as const, tone: "violet" as const },
+        { label: "Okunmamis mesaj", value: "-", meta: "API baglantisi bekleniyor", icon: "messages" as const, tone: "rose" as const },
       ];
 
   return (
@@ -78,11 +89,57 @@ export default async function DashboardPage() {
       eyebrow="Koç paneli"
       title="Bugunku operasyon gorunumu"
       actions={[
-        { label: "Yeni ogrenci", href: "/students/new" },
-        { label: "Haftalik plan", href: "/plans" },
-        { label: "Deneme ekle", href: "/exams" },
+        { label: "Yeni ogrenci", href: "/students/new", icon: "plus" },
+        { label: "Haftalik plan", href: "/plans", icon: "plans" },
+        { label: "Deneme ekle", href: "/exams", icon: "exams" },
       ]}
     >
+      <section className="dashboard-spotlight">
+        <article className="dashboard-spotlight__hero">
+          <span className="dashboard-spotlight__eyebrow">
+            <AppIcon name="spark" />
+            Gunun ritmi
+          </span>
+          <h2>Panel daha canli, daha dikkat cekici ve operasyonu daha net gosterecek sekilde yenilendi.</h2>
+          <p>
+            {summary
+              ? `${summary.totalStudents} ogrenci, ${summary.completedTasksToday} tamamlanan gorev ve ${summary.unreadMessages} bekleyen mesaj ile gunun nabzi tek bakista gorunuyor.`
+              : "Canli veri baglandiginda koçluk operasyonunun ritmi burada toplanir."}
+          </p>
+          <div className="dashboard-spotlight__metrics">
+            <div className="dashboard-spotlight__metric">
+              <span>Genel tamamlama</span>
+              <strong>%{summary?.overallCompletionPercent ?? "-"}</strong>
+            </div>
+            <div className="dashboard-spotlight__metric">
+              <span>Yaklasan gorusme</span>
+              <strong>{summary?.upcomingMeetings ?? 0}</strong>
+            </div>
+            <div className="dashboard-spotlight__metric">
+              <span>Bugunku odak</span>
+              <strong>{summary ? formatMinutes(summary.dailyStudyMinutes) : "-"}</strong>
+            </div>
+          </div>
+        </article>
+
+        <div className="dashboard-spotlight__aside">
+          <div className="spotlight-mini-card spotlight-mini-card--teal">
+            <span className="spotlight-mini-card__icon">
+              <AppIcon name="chart" />
+            </span>
+            <strong>Canli grafikler</strong>
+            <span>Veri artik daha enerjik ve daha hizli okunuyor.</span>
+          </div>
+          <div className="spotlight-mini-card spotlight-mini-card--violet">
+            <span className="spotlight-mini-card__icon">
+              <AppIcon name="focus" />
+            </span>
+            <strong>Odak akisi</strong>
+            <span>Pomodoro, gorev ve mesaj verisi ayni gorsel dilde bulusuyor.</span>
+          </div>
+        </div>
+      </section>
+
       <section className="stats-grid">
         {dashboardStats.map((stat) => (
           <StatCard key={stat.label} {...stat} />
@@ -93,7 +150,9 @@ export default async function DashboardPage() {
         <SectionCard
           title="Haftalik calisma egilimi"
           subtitle="Son 7 gunun pomodoro odak dakika trendi"
-          action={data ? { label: "Pomodoro", href: "/pomodoro" } : "API bekleniyor"}
+          icon="focus"
+          tone="teal"
+          action={data ? { label: "Pomodoro", href: "/pomodoro", icon: "pomodoro" } : "API bekleniyor"}
         >
           <FocusTrendChart data={data?.focusTrend ?? []} />
         </SectionCard>
@@ -101,7 +160,9 @@ export default async function DashboardPage() {
         <SectionCard
           title="Son mesajlar"
           subtitle="Canli mesaj akisindan son 3 kayit"
-          action={{ label: "Mesajlari ac", href: "/messages" }}
+          icon="messages"
+          tone="rose"
+          action={{ label: "Mesajlari ac", href: "/messages", icon: "messages" }}
         >
           <div className="list">
             {data?.recentMessages.length ? (
@@ -132,7 +193,9 @@ export default async function DashboardPage() {
         <SectionCard
           title="Gorev durum dagilimi"
           subtitle="Aktif ve kapanan gorevlerin rol bazli dagilimi"
-          action={{ label: "Operasyon", href: "/tasks" }}
+          icon="tasks"
+          tone="amber"
+          action={{ label: "Operasyon", href: "/tasks", icon: "tasks" }}
         >
           <StatusBreakdown data={data?.taskStatusBreakdown ?? []} />
         </SectionCard>
@@ -140,7 +203,9 @@ export default async function DashboardPage() {
         <SectionCard
           title="Son deneme trendi"
           subtitle="Son 6 denemenin net trendi"
-          action={{ label: "Sinavlar", href: "/exams" }}
+          icon="exams"
+          tone="sky"
+          action={{ label: "Sinavlar", href: "/exams", icon: "exams" }}
         >
           <ExamTrendChart data={data?.examTrend ?? []} />
         </SectionCard>
@@ -150,7 +215,9 @@ export default async function DashboardPage() {
         <SectionCard
           title="Bugunku gorev akisi"
           subtitle="Operasyonel takip icin aktif odevler"
-          action={{ label: "Tum gorevler", href: "/tasks" }}
+          icon="target"
+          tone="violet"
+          action={{ label: "Tum gorevler", href: "/tasks", icon: "tasks" }}
         >
           <div className="list">
             {data?.todayTasks.length ? (
@@ -187,7 +254,9 @@ export default async function DashboardPage() {
         <SectionCard
           title="Riskli ogrenciler"
           subtitle="Mudahale gerektiren ogrenciler"
-          action={{ label: "Tum liste", href: "/students" }}
+          icon="shield"
+          tone="rose"
+          action={{ label: "Tum liste", href: "/students", icon: "students" }}
         >
           <div className="list">
             {data?.riskStudents.length ? (

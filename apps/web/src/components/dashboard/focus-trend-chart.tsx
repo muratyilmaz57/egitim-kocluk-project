@@ -1,3 +1,5 @@
+import { AppIcon } from "@web/components/ui/app-icon";
+
 type FocusTrendChartProps = {
   data: Array<{
     label: string;
@@ -29,6 +31,12 @@ export function FocusTrendChart({ data }: FocusTrendChartProps) {
 
   return (
     <div className="chart-card">
+      <div className="chart-card__header">
+        <span className="chart-card__badge">
+          <AppIcon name="focus" />
+          Odak ritmi
+        </span>
+      </div>
       <svg
         className="trend-chart"
         viewBox={`0 0 ${width} ${height}`}
@@ -37,12 +45,37 @@ export function FocusTrendChart({ data }: FocusTrendChartProps) {
       >
         <defs>
           <linearGradient id="focusArea" x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" stopColor="rgba(15, 118, 110, 0.35)" />
-            <stop offset="100%" stopColor="rgba(15, 118, 110, 0.02)" />
+            <stop offset="0%" stopColor="#14b8a6" stopOpacity="0.32" />
+            <stop offset="100%" stopColor="#14b8a6" stopOpacity="0.02" />
+          </linearGradient>
+          <linearGradient id="focusStroke" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="#0f766e" />
+            <stop offset="100%" stopColor="#7c3aed" />
           </linearGradient>
         </defs>
+        {[0, 1, 2, 3].map((row) => {
+          const y = padding + ((height - padding * 2) / 4) * row;
+          return (
+            <line
+              key={row}
+              x1={padding}
+              y1={y}
+              x2={width - padding}
+              y2={y}
+              stroke="rgba(96, 112, 124, 0.16)"
+              strokeDasharray="4 7"
+            />
+          );
+        })}
         <polygon points={areaPoints} fill="url(#focusArea)" />
-        <polyline points={points} fill="none" stroke="#0f766e" strokeWidth="4" strokeLinejoin="round" strokeLinecap="round" />
+        <polyline
+          points={points}
+          fill="none"
+          stroke="url(#focusStroke)"
+          strokeWidth="4"
+          strokeLinejoin="round"
+          strokeLinecap="round"
+        />
         {data.map((item, index) => {
           const x = padding + index * stepX;
           const y =
@@ -50,7 +83,10 @@ export function FocusTrendChart({ data }: FocusTrendChartProps) {
 
           return (
             <g key={item.label}>
-              <circle cx={x} cy={y} r="5" fill="#0f766e" />
+              <circle cx={x} cy={y} r="6" fill="#0f766e" stroke="white" strokeWidth="3" />
+              <text x={x} y={y - 12} textAnchor="middle" className="trend-chart__value">
+                {item.minutes}
+              </text>
               <text x={x} y={height - 4} textAnchor="middle" className="trend-chart__label">
                 {item.label}
               </text>

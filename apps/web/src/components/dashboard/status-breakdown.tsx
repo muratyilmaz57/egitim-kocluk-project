@@ -1,3 +1,5 @@
+import { AppIcon } from "@web/components/ui/app-icon";
+
 type StatusBreakdownProps = {
   data: Array<{
     label: string;
@@ -25,19 +27,30 @@ export function StatusBreakdown({ data }: StatusBreakdownProps) {
   const total = data.reduce((sum, item) => sum + item.count, 0) || 1;
 
   return (
-    <div className="breakdown-list">
-      {data.map((item) => (
-        <div className="breakdown-item" key={item.label}>
-          <div className="breakdown-item__meta">
-            <strong>{item.label}</strong>
-            <span>{Math.round((item.count / total) * 100)}%</span>
+    <div className="chart-card">
+      <div className="chart-card__header">
+        <span className="chart-card__badge chart-card__badge--amber">
+          <AppIcon name="tasks" />
+          Gorev pulse
+        </span>
+      </div>
+      <div className="breakdown-list">
+        {data.map((item) => (
+          <div className="breakdown-item" key={item.label}>
+            <div className="breakdown-item__meta">
+              <strong>{item.label}</strong>
+              <span>{Math.round((item.count / total) * 100)}%</span>
+            </div>
+            <div className="breakdown-item__bar">
+              <span
+                className={`breakdown-item__fill breakdown-item__fill--${item.tone}`}
+                style={{ width: `${(item.count / total) * 100}%` }}
+              />
+            </div>
+            <span className={toneToClass(item.tone)}>{item.count}</span>
           </div>
-          <div className="breakdown-item__bar">
-            <span style={{ width: `${(item.count / total) * 100}%` }} />
-          </div>
-          <span className={toneToClass(item.tone)}>{item.count}</span>
-        </div>
-      ))}
+        ))}
+      </div>
     </div>
   );
 }

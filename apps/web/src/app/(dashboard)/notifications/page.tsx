@@ -59,25 +59,33 @@ export default async function NotificationsPage({
           label="Toplam bildirim"
           value={String(items.length)}
           meta="Listelenen operasyon uyarilari"
+          icon="notifications"
+          tone="teal"
         />
         <StatCard
           label="Okunmamis"
           value={String(unreadCount)}
           meta="Henuz goruntulenmemis bildirim"
+          icon="messages"
+          tone="rose"
         />
         <StatCard
           label="Filtre"
           value={unread === "true" ? "Acik" : "Tum"}
           meta="Okunmamis filtre durumu"
+          icon="target"
+          tone="amber"
         />
         <StatCard
           label="Rol"
           value={currentUser.role === "student" ? "Ogrenci" : "Koç"}
           meta="Bildirim kapsam tipi"
+          icon="profile"
+          tone="violet"
         />
       </section>
 
-      <SectionCard title="Filtre" subtitle="Okunmamis bildirimleri daralt">
+      <SectionCard title="Filtre" subtitle="Okunmamis bildirimleri daralt" icon="target" tone="sky">
         <form className="filter-form" method="get">
           <select defaultValue={unread} name="unread">
             <option value="">Tum bildirimler</option>
@@ -89,7 +97,7 @@ export default async function NotificationsPage({
         </form>
       </SectionCard>
 
-      <SectionCard title="Bildirim listesi" subtitle="Son operasyon uyarilari">
+      <SectionCard title="Bildirim listesi" subtitle="Son operasyon uyarilari" icon="notifications" tone="teal">
         <div className="list">
           {items.length ? (
             items.map((notification) => (

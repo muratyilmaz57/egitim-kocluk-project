@@ -85,11 +85,32 @@ export default async function ActivityPage({
     >
       <section className="stats-grid">
         {stats.map((stat) => (
-          <StatCard key={stat.label} {...stat} />
+          <StatCard
+            key={stat.label}
+            {...stat}
+            icon={
+              stat.label === "Toplam kayit"
+                ? "activity"
+                : stat.label === "Takipli ogrenci"
+                  ? "students"
+                  : stat.label === "Mesaj olayi"
+                    ? "messages"
+                    : "tasks"
+            }
+            tone={
+              stat.label === "Toplam kayit"
+                ? "teal"
+                : stat.label === "Takipli ogrenci"
+                  ? "sky"
+                  : stat.label === "Mesaj olayi"
+                    ? "rose"
+                    : "amber"
+            }
+          />
         ))}
       </section>
 
-      <SectionCard title="Filtreler" subtitle="Tip veya ogrenci bazli akis ara">
+      <SectionCard title="Filtreler" subtitle="Tip veya ogrenci bazli akis ara" icon="target" tone="sky">
         <form className="filter-form" method="get">
           <input defaultValue={q} name="q" placeholder="Olay, ogrenci veya aciklama ara" />
           <select defaultValue={type} name="type">
@@ -110,6 +131,8 @@ export default async function ActivityPage({
       <SectionCard
         title="Canli operasyon akisi"
         subtitle="Gorev, mesaj, plan, not ve deneme hareketleri"
+        icon="activity"
+        tone="teal"
       >
         <div className="list">
           {filteredItems.length ? (
