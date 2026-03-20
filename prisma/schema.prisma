@@ -1,0 +1,471 @@
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "debian-openssl-3.0.x", "rhel-openssl-3.0.x", "rhel-openssl-1.1.x"]
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  admin
+  coach
+  student
+}
+
+enum UserStatus {
+  active
+  passive
+  blocked
+}
+
+enum StudentStatus {
+  active
+  paused
+  graduated
+}
+
+enum StudyPlanType {
+  daily
+  weekly
+}
+
+enum StudyPlanStatus {
+  draft
+  active
+  completed
+  archived
+}
+
+enum TaskType {
+  study
+  question
+  video
+  exam
+  reading
+}
+
+enum TaskPriority {
+  low
+  medium
+  high
+}
+
+enum TaskStatus {
+  pending
+  in_progress
+  completed
+  missed
+}
+
+enum ExamType {
+  LGS
+  TYT
+  AYT
+  school
+  mock
+}
+
+enum SessionType {
+  focus
+  break
+}
+
+enum MessageType {
+  text
+  file
+  system
+}
+
+enum NoteType {
+  weekly_report
+  motivation
+  coach_comment
+  meeting
+  reminder
+}
+
+enum NoteVisibility {
+  private
+  student_visible
+  parent_visible
+}
+
+enum ResourceType {
+  pdf
+  video
+  note
+  link
+  book
+}
+
+enum NotificationType {
+  task
+  exam
+  message
+  note
+  plan
+  pomodoro
+  resource
+}
+
+model User {
+  id               BigInt      @id @default(autoincrement()) @db.UnsignedBigInt
+  role             UserRole
+  fullName         String      @map("full_name") @db.VarChar(150)
+  email            String      @unique @db.VarChar(191)
+  phone            String?     @db.VarChar(20)
+  passwordHash     String      @map("password_hash") @db.VarChar(255)
+  passwordChangedAt DateTime   @default(now()) @map("password_changed_at")
+  refreshTokenHash String?     @map("refresh_token_hash") @db.VarChar(255)
+  refreshTokenExpiresAt DateTime? @map("refresh_token_expires_at")
+  passwordResetTokenHash String? @map("password_reset_token_hash") @db.VarChar(255)
+  passwordResetExpiresAt DateTime? @map("password_reset_expires_at")
+  mfaEnabled       Boolean     @default(false) @map("mfa_enabled")
+  mfaSecret        String?     @map("mfa_secret") @db.Text
+  mfaTempSecret    String?     @map("mfa_temp_secret") @db.Text
+  avatarUrl        String?     @map("avatar_url") @db.VarChar(255)
+  status           UserStatus  @default(active)
+  lastLoginAt      DateTime?   @map("last_login_at")
+  createdAt        DateTime    @default(now()) @map("created_at")
+  updatedAt        DateTime    @updatedAt @map("updated_at")
+  coachedStudents  Student[]   @relation("CoachStudents")
+  ownedLessons     Lesson[]
+  createdPlans     StudyPlan[]
+  createdTasks     Task[]
+  createdExams     ExamResult[]
+  sentMessages     Message[]   @relation("SentMessages")
+  receivedMessages Message[]   @relation("ReceivedMessages")
+  sentNotifications Notification[] @relation("ActorNotifications")
+  receivedNotifications Notification[] @relation("RecipientNotifications")
+  notificationPreferences NotificationPreference[]
+  auditLogsAsActor  AuditLog[]    @relation("AuditActor")
+  auditLogsAsSubject AuditLog[]   @relation("AuditSubject")
+  writtenNotes     Note[]
+  resources        Resource[]
+  linkedStudent    Student?    @relation("StudentUser")
+  sessions         UserSession[]
+
+  @@index([role, status])
+  @@index([refreshTokenExpiresAt])
+  @@index([passwordResetExpiresAt])
+  @@index([passwordChangedAt])
+  @@map("users")
+}
+
+model UserSession {
+  id               BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  userId           BigInt    @map("user_id") @db.UnsignedBigInt
+  refreshTokenHash String    @map("refresh_token_hash") @db.VarChar(255)
+  expiresAt        DateTime  @map("expires_at")
+  revokedAt        DateTime? @map("revoked_at")
+  lastUsedAt       DateTime? @map("last_used_at")
+  userAgent        String?   @map("user_agent") @db.VarChar(255)
+  ipAddress        String?   @map("ip_address") @db.VarChar(45)
+  createdAt        DateTime  @default(now()) @map("created_at")
+  updatedAt        DateTime  @updatedAt @map("updated_at")
+  user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, revokedAt])
+  @@index([expiresAt])
+  @@map("user_sessions")
+}
+
+model Student {
+  id             BigInt            @id @default(autoincrement()) @db.UnsignedBigInt
+  userId         BigInt?           @unique @map("user_id") @db.UnsignedBigInt
+  coachId        BigInt            @map("coach_id") @db.UnsignedBigInt
+  studentCode    String            @unique @map("student_code") @db.VarChar(50)
+  fullName       String            @map("full_name") @db.VarChar(150)
+  gradeLevel     String            @map("grade_level") @db.VarChar(30)
+  schoolName     String?           @map("school_name") @db.VarChar(150)
+  birthDate      DateTime?         @map("birth_date") @db.Date
+  targetExam     String?           @map("target_exam") @db.VarChar(50)
+  parentName     String?           @map("parent_name") @db.VarChar(150)
+  parentPhone    String?           @map("parent_phone") @db.VarChar(20)
+  parentEmail    String?           @map("parent_email") @db.VarChar(191)
+  photoUrl       String?           @map("photo_url") @db.VarChar(255)
+  enrollmentDate DateTime          @map("enrollment_date") @db.Date
+  status         StudentStatus     @default(active)
+  createdAt      DateTime          @default(now()) @map("created_at")
+  updatedAt      DateTime          @updatedAt @map("updated_at")
+  user           User?             @relation("StudentUser", fields: [userId], references: [id], onDelete: SetNull)
+  coach          User              @relation("CoachStudents", fields: [coachId], references: [id], onDelete: Restrict)
+  studyPlans     StudyPlan[]
+  tasks          Task[]
+  examResults    ExamResult[]
+  pomodoros      PomodoroSession[]
+  messages       Message[]
+  notes          Note[]
+  notifications  Notification[]
+  auditLogs      AuditLog[]
+
+  @@index([coachId, status])
+  @@index([gradeLevel, status])
+  @@map("students")
+}
+
+model AuditLog {
+  id            BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  actorUserId   BigInt?   @map("actor_user_id") @db.UnsignedBigInt
+  subjectUserId BigInt?   @map("subject_user_id") @db.UnsignedBigInt
+  studentId     BigInt?   @map("student_id") @db.UnsignedBigInt
+  action        String    @db.VarChar(100)
+  entityType    String    @map("entity_type") @db.VarChar(50)
+  entityId      String?   @map("entity_id") @db.VarChar(100)
+  description   String    @db.VarChar(255)
+  metadata      Json?
+  createdAt     DateTime  @default(now()) @map("created_at")
+  actorUser     User?     @relation("AuditActor", fields: [actorUserId], references: [id], onDelete: SetNull)
+  subjectUser   User?     @relation("AuditSubject", fields: [subjectUserId], references: [id], onDelete: SetNull)
+  student       Student?  @relation(fields: [studentId], references: [id], onDelete: SetNull)
+
+  @@index([actorUserId, createdAt])
+  @@index([subjectUserId, createdAt])
+  @@index([studentId, createdAt])
+  @@index([action, createdAt])
+  @@map("audit_logs")
+}
+
+model Lesson {
+  id        BigInt     @id @default(autoincrement()) @db.UnsignedBigInt
+  coachId   BigInt     @map("coach_id") @db.UnsignedBigInt
+  name      String     @db.VarChar(100)
+  code      String     @unique @db.VarChar(30)
+  color     String?    @db.VarChar(20)
+  icon      String?    @db.VarChar(50)
+  sortOrder Int        @default(0) @map("sort_order")
+  isActive  Boolean    @default(true) @map("is_active")
+  createdAt DateTime   @default(now()) @map("created_at")
+  updatedAt DateTime   @updatedAt @map("updated_at")
+  coach     User       @relation(fields: [coachId], references: [id], onDelete: Restrict)
+  topics    Topic[]
+  tasks     Task[]
+  resources Resource[]
+
+  @@index([isActive, sortOrder])
+  @@map("lessons")
+}
+
+model Topic {
+  id               BigInt     @id @default(autoincrement()) @db.UnsignedBigInt
+  lessonId         BigInt     @map("lesson_id") @db.UnsignedBigInt
+  parentTopicId    BigInt?    @map("parent_topic_id") @db.UnsignedBigInt
+  name             String     @db.VarChar(150)
+  description      String?    @db.Text
+  gradeLevel       String?    @map("grade_level") @db.VarChar(30)
+  difficultyLevel  Int?       @map("difficulty_level") @db.UnsignedTinyInt
+  estimatedMinutes Int?       @map("estimated_minutes")
+  isActive         Boolean    @default(true) @map("is_active")
+  createdAt        DateTime   @default(now()) @map("created_at")
+  updatedAt        DateTime   @updatedAt @map("updated_at")
+  lesson           Lesson     @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  parentTopic      Topic?     @relation("TopicHierarchy", fields: [parentTopicId], references: [id], onDelete: SetNull)
+  childTopics      Topic[]    @relation("TopicHierarchy")
+  tasks            Task[]
+  resources        Resource[]
+
+  @@index([lessonId, isActive])
+  @@index([gradeLevel])
+  @@map("topics")
+}
+
+model StudyPlan {
+  id                 BigInt          @id @default(autoincrement()) @db.UnsignedBigInt
+  studentId          BigInt          @map("student_id") @db.UnsignedBigInt
+  coachId            BigInt          @map("coach_id") @db.UnsignedBigInt
+  title              String          @db.VarChar(150)
+  planType           StudyPlanType   @map("plan_type")
+  startDate          DateTime        @map("start_date") @db.Date
+  endDate            DateTime        @map("end_date") @db.Date
+  status             StudyPlanStatus @default(draft)
+  totalTargetMinutes Int             @default(0) @map("total_target_minutes")
+  notes              String?         @db.Text
+  createdAt          DateTime        @default(now()) @map("created_at")
+  updatedAt          DateTime        @updatedAt @map("updated_at")
+  student            Student         @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  coach              User            @relation(fields: [coachId], references: [id], onDelete: Restrict)
+  tasks              Task[]
+
+  @@index([studentId, startDate, endDate])
+  @@index([status])
+  @@map("study_plans")
+}
+
+model Task {
+  id                  BigInt       @id @default(autoincrement()) @db.UnsignedBigInt
+  studyPlanId         BigInt?      @map("study_plan_id") @db.UnsignedBigInt
+  studentId           BigInt       @map("student_id") @db.UnsignedBigInt
+  coachId             BigInt       @map("coach_id") @db.UnsignedBigInt
+  lessonId            BigInt?      @map("lesson_id") @db.UnsignedBigInt
+  topicId             BigInt?      @map("topic_id") @db.UnsignedBigInt
+  title               String       @db.VarChar(150)
+  taskType            TaskType     @map("task_type")
+  description         String?      @db.Text
+  targetQuestionCount Int          @default(0) @map("target_question_count")
+  targetMinutes       Int          @default(0) @map("target_minutes")
+  priority            TaskPriority @default(medium)
+  status              TaskStatus   @default(pending)
+  progressPercent     Int          @default(0) @map("progress_percent") @db.UnsignedTinyInt
+  dueAt               DateTime?    @map("due_at")
+  completedAt         DateTime?    @map("completed_at")
+  createdAt           DateTime     @default(now()) @map("created_at")
+  updatedAt           DateTime     @updatedAt @map("updated_at")
+  studyPlan           StudyPlan?   @relation(fields: [studyPlanId], references: [id], onDelete: SetNull)
+  student             Student      @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  coach               User         @relation(fields: [coachId], references: [id], onDelete: Restrict)
+  lesson              Lesson?      @relation(fields: [lessonId], references: [id], onDelete: SetNull)
+  topic               Topic?       @relation(fields: [topicId], references: [id], onDelete: SetNull)
+  pomodoros           PomodoroSession[]
+
+  @@index([studentId, status, dueAt])
+  @@index([studyPlanId])
+  @@index([lessonId, topicId])
+  @@map("tasks")
+}
+
+model ExamResult {
+  id              BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  studentId       BigInt    @map("student_id") @db.UnsignedBigInt
+  coachId         BigInt    @map("coach_id") @db.UnsignedBigInt
+  examName        String    @map("exam_name") @db.VarChar(150)
+  examType        ExamType  @map("exam_type")
+  examDate        DateTime  @map("exam_date") @db.Date
+  durationMinutes Int?      @map("duration_minutes")
+  correctCount    Int       @default(0) @map("correct_count")
+  wrongCount      Int       @default(0) @map("wrong_count")
+  blankCount      Int       @default(0) @map("blank_count")
+  totalNet        Decimal   @default(0.00) @map("total_net") @db.Decimal(6, 2)
+  score           Decimal?  @db.Decimal(7, 2)
+  rankInGroup     Int?      @map("rank_in_group")
+  lessonBreakdown Json?     @map("lesson_breakdown")
+  incorrectTopics Json?     @map("incorrect_topics")
+  notes           String?   @db.Text
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+  student         Student   @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  coach           User      @relation(fields: [coachId], references: [id], onDelete: Restrict)
+
+  @@index([studentId, examDate])
+  @@index([examType, examDate])
+  @@map("exam_results")
+}
+
+model PomodoroSession {
+  id              BigInt      @id @default(autoincrement()) @db.UnsignedBigInt
+  studentId       BigInt      @map("student_id") @db.UnsignedBigInt
+  taskId          BigInt?     @map("task_id") @db.UnsignedBigInt
+  startedAt       DateTime    @map("started_at")
+  endedAt         DateTime?   @map("ended_at")
+  durationMinutes Int         @default(0) @map("duration_minutes")
+  breakMinutes    Int         @default(0) @map("break_minutes")
+  sessionType     SessionType @default(focus) @map("session_type")
+  deviceType      String?     @map("device_type") @db.VarChar(30)
+  notes           String?     @db.VarChar(255)
+  createdAt       DateTime    @default(now()) @map("created_at")
+  student         Student     @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  task            Task?       @relation(fields: [taskId], references: [id], onDelete: SetNull)
+
+  @@index([studentId, startedAt])
+  @@index([taskId])
+  @@map("pomodoro_sessions")
+}
+
+model Message {
+  id             BigInt      @id @default(autoincrement()) @db.UnsignedBigInt
+  senderUserId   BigInt      @map("sender_user_id") @db.UnsignedBigInt
+  receiverUserId BigInt      @map("receiver_user_id") @db.UnsignedBigInt
+  studentId      BigInt?     @map("student_id") @db.UnsignedBigInt
+  messageType    MessageType @default(text) @map("message_type")
+  content        String      @db.Text
+  attachmentUrl  String?     @map("attachment_url") @db.VarChar(255)
+  isRead         Boolean     @default(false) @map("is_read")
+  readAt         DateTime?   @map("read_at")
+  createdAt      DateTime    @default(now()) @map("created_at")
+  sender         User        @relation("SentMessages", fields: [senderUserId], references: [id], onDelete: Cascade)
+  receiver       User        @relation("ReceivedMessages", fields: [receiverUserId], references: [id], onDelete: Cascade)
+  student        Student?    @relation(fields: [studentId], references: [id], onDelete: SetNull)
+
+  @@index([receiverUserId, isRead, createdAt])
+  @@index([studentId, createdAt])
+  @@map("messages")
+}
+
+model Note {
+  id         BigInt         @id @default(autoincrement()) @db.UnsignedBigInt
+  studentId  BigInt         @map("student_id") @db.UnsignedBigInt
+  coachId    BigInt         @map("coach_id") @db.UnsignedBigInt
+  noteType   NoteType       @map("note_type")
+  title      String         @db.VarChar(150)
+  content    String         @db.Text
+  visibility NoteVisibility @default(private)
+  rating     Int?           @db.UnsignedTinyInt
+  createdAt  DateTime       @default(now()) @map("created_at")
+  updatedAt  DateTime       @updatedAt @map("updated_at")
+  student    Student        @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  coach      User           @relation(fields: [coachId], references: [id], onDelete: Restrict)
+
+  @@index([studentId, noteType, createdAt])
+  @@map("notes")
+}
+
+model Resource {
+  id               BigInt       @id @default(autoincrement()) @db.UnsignedBigInt
+  coachId          BigInt       @map("coach_id") @db.UnsignedBigInt
+  lessonId         BigInt?      @map("lesson_id") @db.UnsignedBigInt
+  topicId          BigInt?      @map("topic_id") @db.UnsignedBigInt
+  resourceType     ResourceType @map("resource_type")
+  title            String       @db.VarChar(150)
+  description      String?      @db.Text
+  url              String?      @db.VarChar(255)
+  filePath         String?      @map("file_path") @db.VarChar(255)
+  thumbnailUrl     String?      @map("thumbnail_url") @db.VarChar(255)
+  targetGradeLevel String?      @map("target_grade_level") @db.VarChar(30)
+  isFeatured       Boolean      @default(false) @map("is_featured")
+  createdAt        DateTime     @default(now()) @map("created_at")
+  updatedAt        DateTime     @updatedAt @map("updated_at")
+  coach            User         @relation(fields: [coachId], references: [id], onDelete: Restrict)
+  lesson           Lesson?      @relation(fields: [lessonId], references: [id], onDelete: SetNull)
+  topic            Topic?       @relation(fields: [topicId], references: [id], onDelete: SetNull)
+
+  @@index([lessonId, topicId, resourceType])
+  @@index([targetGradeLevel, isFeatured])
+  @@map("resources")
+}
+
+model Notification {
+  id              BigInt           @id @default(autoincrement()) @db.UnsignedBigInt
+  recipientUserId BigInt           @map("recipient_user_id") @db.UnsignedBigInt
+  actorUserId     BigInt?          @map("actor_user_id") @db.UnsignedBigInt
+  studentId       BigInt?          @map("student_id") @db.UnsignedBigInt
+  type            NotificationType
+  title           String           @db.VarChar(160)
+  body            String?          @db.VarChar(255)
+  href            String           @db.VarChar(255)
+  isRead          Boolean          @default(false) @map("is_read")
+  readAt          DateTime?        @map("read_at")
+  createdAt       DateTime         @default(now()) @map("created_at")
+  recipientUser   User             @relation("RecipientNotifications", fields: [recipientUserId], references: [id], onDelete: Cascade)
+  actorUser       User?            @relation("ActorNotifications", fields: [actorUserId], references: [id], onDelete: SetNull)
+  student         Student?         @relation(fields: [studentId], references: [id], onDelete: SetNull)
+
+  @@index([recipientUserId, isRead, createdAt])
+  @@index([studentId, createdAt])
+  @@map("notifications")
+}
+
+model NotificationPreference {
+  id           BigInt           @id @default(autoincrement()) @db.UnsignedBigInt
+  userId       BigInt           @map("user_id") @db.UnsignedBigInt
+  type         NotificationType
+  inAppEnabled Boolean          @default(true) @map("in_app_enabled")
+  emailEnabled Boolean          @default(false) @map("email_enabled")
+  createdAt    DateTime         @default(now()) @map("created_at")
+  updatedAt    DateTime         @updatedAt @map("updated_at")
+  user         User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, type])
+  @@index([userId, inAppEnabled])
+  @@map("notification_preferences")
+}

@@ -1,0 +1,28 @@
+{
+  "name": "kocluk-proje",
+  "private": true,
+  "version": "0.1.0",
+  "workspaces": [
+    "apps/web",
+    "apps/api"
+  ],
+  "scripts": {
+    "dev:web": "npm run dev --workspace @kocluk/web",
+    "dev:api": "npm run start:dev --workspace @kocluk/api",
+    "build": "npm run build:api && npm run build:web",
+    "build:web": "npm run build --workspace @kocluk/web",
+    "build:api": "npm run build --workspace @kocluk/api",
+    "start:prod:web": "npm run start --workspace @kocluk/web",
+    "start:prod:api": "node apps/api/dist/main.js",
+    "deploy:staging": "node scripts/deploy-plesk.mjs staging",
+    "deploy:prod": "node scripts/deploy-plesk.mjs production",
+    "lint:web": "npm run lint --workspace @kocluk/web",
+    "prisma:generate": "npx prisma generate --schema prisma/schema.prisma",
+    "prisma:migrate": "npx prisma migrate dev --schema prisma/schema.prisma",
+    "prisma:deploy": "npx prisma migrate deploy --schema prisma/schema.prisma",
+    "db:seed": "node prisma/seed.mjs"
+  },
+  "devDependencies": {
+    "mysqldump": "^3.2.0"
+  }
+}
