@@ -4,8 +4,10 @@ Bu proje icin staging ve production deploy secret'lari repoya girmez. Her bilgis
 
 ## Onerilen konum
 
-- `~/.config/kocluk-proje/.env.deploy.staging`
-- `~/.config/kocluk-proje/.env.deploy.production`
+- macOS/Linux: `~/.config/kocluk-proje/.env.deploy.staging`
+- macOS/Linux: `~/.config/kocluk-proje/.env.deploy.production`
+- Windows: `%APPDATA%/kocluk-proje/.env.deploy.staging`
+- Windows: `%APPDATA%/kocluk-proje/.env.deploy.production`
 
 ## Ilk kurulum
 

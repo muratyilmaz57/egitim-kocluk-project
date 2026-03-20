@@ -61,8 +61,10 @@ npm run setup:deploy-secrets
 
 Bu komut her makinede repo disinda su dosyalari olusturur:
 
-- `~/.config/kocluk-proje/.env.deploy.staging`
-- `~/.config/kocluk-proje/.env.deploy.production`
+- macOS/Linux: `~/.config/kocluk-proje/.env.deploy.staging`
+- macOS/Linux: `~/.config/kocluk-proje/.env.deploy.production`
+- Windows: `%APPDATA%/kocluk-proje/.env.deploy.staging`
+- Windows: `%APPDATA%/kocluk-proje/.env.deploy.production`
 
 Sonrasinda ek env vermeden su komutlar calisir:
 

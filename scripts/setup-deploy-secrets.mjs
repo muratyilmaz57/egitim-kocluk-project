@@ -4,7 +4,16 @@ import { homedir } from "node:os";
 
 const projectRoot = resolve(process.cwd());
 const templatePath = resolve(projectRoot, ".env.deploy.example");
-const targetDir = resolve(homedir(), ".config", "kocluk-proje");
+
+function getDeployConfigDir() {
+  if (process.platform === "win32" && process.env.APPDATA) {
+    return resolve(process.env.APPDATA, "kocluk-proje");
+  }
+
+  return resolve(homedir(), ".config", "kocluk-proje");
+}
+
+const targetDir = getDeployConfigDir();
 
 mkdirSync(targetDir, { recursive: true });
 

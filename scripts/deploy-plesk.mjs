@@ -7,10 +7,18 @@ const projectRoot = resolve(process.cwd());
 const target = process.argv[2] || process.env.DEPLOY_ENV_NAME || "staging";
 const isProduction = target === "production";
 
+function getDeployConfigDir() {
+  if (process.platform === "win32" && process.env.APPDATA) {
+    return resolve(process.env.APPDATA, "kocluk-proje");
+  }
+
+  return resolve(homedir(), ".config", "kocluk-proje");
+}
+
 function loadEnvFile() {
   const requestedEnvFile = process.env.DEPLOY_ENV_FILE;
   const defaultCandidates = [
-    resolve(homedir(), ".config", "kocluk-proje", `.env.deploy.${target}`),
+    resolve(getDeployConfigDir(), `.env.deploy.${target}`),
     resolve(homedir(), ".kocluk-proje", `.env.deploy.${target}`),
   ];
   const fullPath = requestedEnvFile

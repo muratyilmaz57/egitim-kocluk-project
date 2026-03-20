@@ -80,8 +80,10 @@ git push -u origin feature/<is-adi>
 
 Gercek deploy secret'larini repo icinde tutmayin. Her bilgisayarda repo disi dosya kullanin:
 
-- `~/.config/kocluk-proje/.env.deploy.staging`
-- `~/.config/kocluk-proje/.env.deploy.production`
+- macOS/Linux: `~/.config/kocluk-proje/.env.deploy.staging`
+- macOS/Linux: `~/.config/kocluk-proje/.env.deploy.production`
+- Windows: `%APPDATA%/kocluk-proje/.env.deploy.staging`
+- Windows: `%APPDATA%/kocluk-proje/.env.deploy.production`
 
 Ilk kurulum:
 
