@@ -143,7 +143,7 @@ export function WeeklyProgramBoard({
   const pathname = usePathname();
   const router = useRouter();
   const today = new Date();
-  const [dragEnabled, setDragEnabled] = useState(false);
+  const [dragEnabled, setDragEnabled] = useState(true);
   const [hourlyMode, setHourlyMode] = useState(false);
   const [showTaskForm, setShowTaskForm] = useState(user.role !== "student" && tasks.length === 0);
   const [showPlanForm, setShowPlanForm] = useState(false);

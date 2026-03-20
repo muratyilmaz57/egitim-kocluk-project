@@ -5,12 +5,12 @@
   --text: #132033;
   --muted: #63748a;
   --line: #d7e2ef;
-  --primary: #0f766e;
-  --primary-dark: #0b3d3f;
-  --accent: #f59e0b;
+  --primary: #3158d6;
+  --primary-dark: #18284f;
+  --accent: #b87938;
   --sky: #2563eb;
-  --violet: #7c3aed;
-  --rose: #e11d48;
+  --violet: #6f58d9;
+  --rose: #d15c78;
   --danger: #e85d5d;
   --success: #15803d;
   --shadow: 0 24px 60px rgba(13, 26, 45, 0.1);
@@ -32,9 +32,9 @@ html {
 body {
   margin: 0;
   background:
-    radial-gradient(circle at top left, rgba(37, 99, 235, 0.14), transparent 22%),
-    radial-gradient(circle at 85% 12%, rgba(124, 58, 237, 0.12), transparent 24%),
-    radial-gradient(circle at 55% 100%, rgba(15, 118, 110, 0.12), transparent 30%),
+    radial-gradient(circle at top left, rgba(49, 88, 214, 0.14), transparent 22%),
+    radial-gradient(circle at 85% 12%, rgba(111, 88, 217, 0.1), transparent 24%),
+    radial-gradient(circle at 55% 100%, rgba(184, 121, 56, 0.12), transparent 30%),
     linear-gradient(180deg, #f8fbff 0%, var(--bg) 100%);
   color: var(--text);
 }
@@ -70,14 +70,16 @@ textarea {
   padding: 24px;
   border-radius: 28px;
   background: rgba(255, 255, 255, 0.88);
-  border: 1px solid rgba(215, 226, 223, 0.8);
+  border: 1px solid rgba(215, 226, 239, 0.84);
   box-shadow: var(--shadow);
 }
 
 .auth-card__hero {
   padding: 28px;
   border-radius: 24px;
-  background: linear-gradient(135deg, #0c3040 0%, #0f766e 55%, #66c4b7 100%);
+  background:
+    radial-gradient(circle at top right, rgba(255, 255, 255, 0.16), transparent 28%),
+    linear-gradient(135deg, #121b36 0%, #203d8f 56%, #b87938 100%);
   color: white;
 }
 
@@ -158,7 +160,7 @@ textarea {
   padding: 14px 16px;
   border-radius: 16px;
   border: 1px solid var(--line);
-  background: rgba(15, 118, 110, 0.04);
+  background: rgba(49, 88, 214, 0.04);
 }
 
 .settings-row span {
@@ -193,7 +195,7 @@ textarea {
   overflow-wrap: anywhere;
   padding: 10px 12px;
   border-radius: 12px;
-  background: #edf6f4;
+  background: #eef3ff;
   color: var(--primary-dark);
 }
 
@@ -209,7 +211,7 @@ textarea {
   padding: 18px;
   border-radius: 18px;
   border: 1px solid var(--line);
-  background: #f9fbfb;
+  background: #f7f9ff;
 }
 
 .settings-qr img {
@@ -229,7 +231,7 @@ textarea {
   padding: 16px 18px;
   border-radius: 18px;
   border: 1px solid var(--line);
-  background: linear-gradient(180deg, rgba(15, 118, 110, 0.04), rgba(255, 255, 255, 0.92));
+  background: linear-gradient(180deg, rgba(49, 88, 214, 0.04), rgba(255, 255, 255, 0.92));
 }
 
 .audit-item--full {
@@ -257,7 +259,7 @@ textarea {
 .audit-item__meta span {
   padding: 6px 10px;
   border-radius: 999px;
-  background: rgba(15, 118, 110, 0.08);
+  background: rgba(49, 88, 214, 0.08);
   color: var(--primary-dark);
   font-size: 0.9rem;
 }
@@ -325,7 +327,7 @@ textarea {
   padding: 16px 18px;
   border-radius: 18px;
   border: 1px solid var(--line);
-  background: rgba(15, 118, 110, 0.04);
+  background: rgba(49, 88, 214, 0.04);
 }
 
 .preference-row p {
@@ -374,8 +376,8 @@ textarea {
   padding: 22px 18px;
   border-right: 1px solid rgba(215, 226, 239, 0.75);
   background:
-    linear-gradient(180deg, rgba(15, 23, 42, 0.96), rgba(18, 49, 78, 0.92)),
-    rgba(11, 61, 63, 0.92);
+    linear-gradient(180deg, rgba(15, 23, 42, 0.98), rgba(27, 46, 94, 0.94)),
+    rgba(24, 40, 79, 0.94);
   color: white;
   backdrop-filter: blur(22px);
   overflow: hidden;
@@ -388,7 +390,7 @@ textarea {
   padding: 18px;
   border-radius: 24px;
   background:
-    radial-gradient(circle at top right, rgba(96, 165, 250, 0.28), transparent 30%),
+    radial-gradient(circle at top right, rgba(191, 132, 66, 0.22), transparent 30%),
     linear-gradient(145deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.04));
   border: 1px solid rgba(255, 255, 255, 0.12);
   box-shadow: 0 20px 40px rgba(3, 7, 18, 0.26);
@@ -400,9 +402,9 @@ textarea {
   border-radius: 18px;
   display: grid;
   place-items: center;
-  background: linear-gradient(135deg, #f59e0b, #7c3aed);
+  background: linear-gradient(135deg, #3158d6, #b87938);
   color: white;
-  box-shadow: 0 16px 28px rgba(124, 58, 237, 0.28);
+  box-shadow: 0 16px 28px rgba(49, 88, 214, 0.24);
 }
 
 .sidebar__brand-mark svg {
@@ -500,10 +502,10 @@ textarea {
 .sidebar__link--active {
   background:
     radial-gradient(circle at top right, rgba(255, 255, 255, 0.22), transparent 35%),
-    linear-gradient(135deg, #2563eb, #7c3aed 55%, #0f766e 100%);
+    linear-gradient(135deg, #2542a8, #4a56c8 54%, #b87938 100%);
   color: white;
   border-color: rgba(255, 255, 255, 0.15);
-  box-shadow: 0 18px 34px rgba(37, 99, 235, 0.28);
+  box-shadow: 0 18px 34px rgba(37, 99, 235, 0.2);
 }
 
 .sidebar__link--active .sidebar__link-icon {
@@ -530,8 +532,8 @@ textarea {
   border-radius: var(--radius-lg);
   background:
     radial-gradient(circle at 85% 15%, rgba(255, 255, 255, 0.2), transparent 18%),
-    radial-gradient(circle at 25% 120%, rgba(56, 189, 248, 0.28), transparent 30%),
-    linear-gradient(135deg, #0f172a 0%, #1d4ed8 42%, #0f766e 100%);
+    radial-gradient(circle at 25% 120%, rgba(191, 132, 66, 0.24), transparent 30%),
+    linear-gradient(135deg, #111936 0%, #274cb6 44%, #7c5a3b 100%);
   color: white;
   box-shadow: var(--shadow);
   overflow: hidden;
@@ -695,8 +697,8 @@ textarea {
 }
 
 .notification-item--unread {
-  background: linear-gradient(180deg, rgba(232, 243, 241, 0.95), white);
-  border-color: rgba(15, 118, 110, 0.24);
+  background: linear-gradient(180deg, rgba(239, 243, 255, 0.96), white);
+  border-color: rgba(49, 88, 214, 0.18);
 }
 
 .notification-item__meta {
@@ -740,9 +742,9 @@ textarea {
   overflow: hidden;
   background:
     radial-gradient(circle at top right, rgba(255, 255, 255, 0.25), transparent 18%),
-    linear-gradient(135deg, rgba(37, 99, 235, 0.98), rgba(124, 58, 237, 0.95) 52%, rgba(15, 118, 110, 0.95));
+    linear-gradient(135deg, rgba(24, 40, 79, 0.99), rgba(49, 88, 214, 0.96) 52%, rgba(184, 121, 56, 0.94));
   color: white;
-  box-shadow: 0 28px 50px rgba(37, 99, 235, 0.18);
+  box-shadow: 0 28px 50px rgba(24, 40, 79, 0.18);
 }
 
 .dashboard-spotlight__hero h2 {
@@ -820,7 +822,7 @@ textarea {
 
 .spotlight-mini-card--teal {
   background:
-    radial-gradient(circle at top right, rgba(20, 184, 166, 0.18), transparent 30%),
+    radial-gradient(circle at top right, rgba(184, 121, 56, 0.16), transparent 30%),
     rgba(255, 255, 255, 0.92);
 }
 
@@ -836,7 +838,7 @@ textarea {
   border-radius: 16px;
   display: grid;
   place-items: center;
-  background: linear-gradient(135deg, #2563eb, #7c3aed);
+  background: linear-gradient(135deg, #3158d6, #b87938);
   color: white;
 }
 
@@ -875,7 +877,7 @@ textarea {
   position: absolute;
   inset: 0 0 auto 0;
   height: 4px;
-  background: linear-gradient(90deg, rgba(37, 99, 235, 0.95), rgba(124, 58, 237, 0.92), rgba(15, 118, 110, 0.92));
+  background: linear-gradient(90deg, rgba(49, 88, 214, 0.96), rgba(111, 88, 217, 0.92), rgba(184, 121, 56, 0.92));
 }
 
 .stat-card__top {
@@ -905,14 +907,14 @@ textarea {
   align-items: center;
   padding: 7px 10px;
   border-radius: 999px;
-  background: rgba(15, 118, 110, 0.08);
+  background: rgba(49, 88, 214, 0.08);
   color: var(--primary-dark);
   font-size: 0.78rem;
   font-weight: 700;
 }
 
 .stat-card--teal .stat-card__icon {
-  background: linear-gradient(135deg, #0f766e, #14b8a6);
+  background: linear-gradient(135deg, #3158d6, #5d7af0);
 }
 
 .stat-card--amber .stat-card__icon {
@@ -981,7 +983,7 @@ textarea {
 }
 
 .section-card--teal::before {
-  background: linear-gradient(90deg, rgba(15, 118, 110, 0.92), rgba(20, 184, 166, 0.92));
+  background: linear-gradient(90deg, rgba(49, 88, 214, 0.92), rgba(93, 122, 240, 0.92));
 }
 
 .section-card__header {
@@ -1005,7 +1007,7 @@ textarea {
   display: grid;
   place-items: center;
   color: white;
-  background: linear-gradient(135deg, #2563eb, #7c3aed);
+  background: linear-gradient(135deg, #3158d6, #b87938);
 }
 
 .section-card__icon svg {
@@ -1026,7 +1028,7 @@ textarea {
 }
 
 .section-card--teal .section-card__icon {
-  background: linear-gradient(135deg, #0f766e, #14b8a6);
+  background: linear-gradient(135deg, #3158d6, #5d7af0);
 }
 
 .section-card__title {
@@ -1103,11 +1105,11 @@ textarea {
   min-height: 240px;
   border-radius: var(--radius-md);
   background:
-    linear-gradient(180deg, rgba(15, 118, 110, 0.08), rgba(15, 118, 110, 0.01)),
+    linear-gradient(180deg, rgba(49, 88, 214, 0.08), rgba(49, 88, 214, 0.01)),
     repeating-linear-gradient(
       to right,
-      rgba(15, 118, 110, 0.05) 0,
-      rgba(15, 118, 110, 0.05) 1px,
+      rgba(49, 88, 214, 0.05) 0,
+      rgba(49, 88, 214, 0.05) 1px,
       transparent 1px,
       transparent 72px
     ),
@@ -1128,7 +1130,7 @@ textarea {
   position: absolute;
   inset: auto 0 24px 0;
   height: 120px;
-  background: linear-gradient(90deg, transparent 0%, rgba(15, 118, 110, 0.2) 16%, rgba(15, 118, 110, 0.72) 48%, rgba(245, 158, 11, 0.65) 72%, transparent 100%);
+  background: linear-gradient(90deg, transparent 0%, rgba(49, 88, 214, 0.16) 16%, rgba(49, 88, 214, 0.72) 48%, rgba(184, 121, 56, 0.62) 72%, transparent 100%);
   clip-path: polygon(0 80%, 16% 62%, 32% 72%, 48% 36%, 64% 46%, 78% 20%, 100% 6%, 100% 100%, 0 100%);
 }
 
@@ -1148,7 +1150,7 @@ textarea {
   gap: 8px;
   padding: 8px 12px;
   border-radius: 999px;
-  background: rgba(15, 118, 110, 0.08);
+  background: rgba(49, 88, 214, 0.08);
   color: var(--primary-dark);
   font-size: 0.84rem;
   font-weight: 700;
@@ -1288,7 +1290,7 @@ textarea {
   align-items: flex-end;
   justify-content: center;
   background:
-    linear-gradient(180deg, rgba(15, 118, 110, 0.08), rgba(96, 112, 124, 0.04)),
+    linear-gradient(180deg, rgba(49, 88, 214, 0.08), rgba(96, 112, 124, 0.04)),
     white;
   border: 1px solid var(--line);
 }
@@ -1308,7 +1310,7 @@ textarea {
 }
 
 .bar-chart__fill--2 {
-  background: linear-gradient(180deg, #14b8a6, #0f766e);
+  background: linear-gradient(180deg, #c6955f, #8f5d30);
 }
 
 .bar-chart__fill--3 {
@@ -1378,9 +1380,9 @@ textarea {
 }
 
 .secondary-button {
-  background: rgba(15, 118, 110, 0.08);
+  background: rgba(49, 88, 214, 0.08);
   color: var(--primary-dark);
-  box-shadow: inset 0 0 0 1px rgba(15, 118, 110, 0.08);
+  box-shadow: inset 0 0 0 1px rgba(49, 88, 214, 0.08);
 }
 
 .danger-button {
@@ -1578,7 +1580,7 @@ textarea {
   width: 8px;
   min-height: 56px;
   border-radius: 999px;
-  background: linear-gradient(180deg, #4f46e5, #2563eb);
+  background: linear-gradient(180deg, #3158d6, #b87938);
 }
 
 .planner-heading h2 {
@@ -1640,11 +1642,11 @@ textarea {
   border: 1px solid var(--line);
   color: #334155;
   font-weight: 700;
-  box-shadow: 0 8px 20px rgba(15, 61, 63, 0.04);
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.05);
 }
 
 .planner-nav__button--primary {
-  background: linear-gradient(135deg, #2563eb, #4f46e5);
+  background: linear-gradient(135deg, #274cb6, #4b57cc);
   color: white;
   border-color: transparent;
 }
@@ -1736,7 +1738,7 @@ textarea {
   background: white;
   color: #334155;
   font-weight: 700;
-  box-shadow: 0 8px 20px rgba(15, 61, 63, 0.04);
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.05);
 }
 
 .planner-action--primary {
@@ -1746,13 +1748,13 @@ textarea {
 }
 
 .planner-action--success {
-  background: linear-gradient(135deg, #14b8a6, #0f766e);
+  background: linear-gradient(135deg, #3158d6, #5d7af0);
   color: white;
   border-color: transparent;
 }
 
 .planner-action--active {
-  box-shadow: 0 12px 28px rgba(15, 118, 110, 0.24);
+  box-shadow: 0 12px 28px rgba(49, 88, 214, 0.22);
 }
 
 .planner-filters {
@@ -1780,8 +1782,8 @@ textarea {
 .planner-banner {
   padding: 12px 14px;
   border-radius: 16px;
-  background: rgba(20, 184, 166, 0.08);
-  color: #0f766e;
+  background: rgba(49, 88, 214, 0.08);
+  color: #274cb6;
   font-weight: 600;
 }
 

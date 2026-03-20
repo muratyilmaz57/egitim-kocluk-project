@@ -45,12 +45,13 @@ export function FocusTrendChart({ data }: FocusTrendChartProps) {
       >
         <defs>
           <linearGradient id="focusArea" x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" stopColor="#14b8a6" stopOpacity="0.32" />
-            <stop offset="100%" stopColor="#14b8a6" stopOpacity="0.02" />
+            <stop offset="0%" stopColor="#3158d6" stopOpacity="0.3" />
+            <stop offset="100%" stopColor="#3158d6" stopOpacity="0.02" />
           </linearGradient>
           <linearGradient id="focusStroke" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stopColor="#0f766e" />
-            <stop offset="100%" stopColor="#7c3aed" />
+            <stop offset="0%" stopColor="#1e3a8a" />
+            <stop offset="60%" stopColor="#3158d6" />
+            <stop offset="100%" stopColor="#b87938" />
           </linearGradient>
         </defs>
         {[0, 1, 2, 3].map((row) => {
@@ -83,7 +84,7 @@ export function FocusTrendChart({ data }: FocusTrendChartProps) {
 
           return (
             <g key={item.label}>
-              <circle cx={x} cy={y} r="6" fill="#0f766e" stroke="white" strokeWidth="3" />
+              <circle cx={x} cy={y} r="6" fill="#1e3a8a" stroke="white" strokeWidth="3" />
               <text x={x} y={y - 12} textAnchor="middle" className="trend-chart__value">
                 {item.minutes}
               </text>
