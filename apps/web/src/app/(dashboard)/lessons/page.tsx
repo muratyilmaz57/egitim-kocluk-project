@@ -37,6 +37,7 @@ export default async function LessonsPage({ searchParams }: LessonsPageProps) {
               { label: "Yeni ders", href: "/lessons?create=lesson", icon: "plus" },
               { label: "Konu ekle", href: "/lessons?create=topic", icon: "plus" },
               { label: "Excel aktar", href: "/lessons?create=import", icon: "plus" },
+              { label: "Sablon indir", href: "/api/lessons/template" },
               { label: "Kaynaklar", href: "/library" },
             ]
       }

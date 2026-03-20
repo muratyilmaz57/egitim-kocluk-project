@@ -7,6 +7,8 @@ import { AppIcon, type AppIconName } from "@web/components/ui/app-icon";
 
 type SidebarProps = {
   user: SessionUser;
+  collapsed: boolean;
+  onToggle: () => void;
 };
 
 type NavItem = {
@@ -16,7 +18,7 @@ type NavItem = {
   description: string;
 };
 
-export function Sidebar({ user }: SidebarProps) {
+export function Sidebar({ user, collapsed, onToggle }: SidebarProps) {
   const pathname = usePathname();
   const coachItems: NavItem[] = [
     { href: "/dashboard", label: "Dashboard", icon: "dashboard", description: "Canli genel gorunum" },
@@ -53,10 +55,15 @@ export function Sidebar({ user }: SidebarProps) {
   const items = user.role === "student" ? studentItems : coachItems;
 
   return (
-    <aside className="sidebar">
+    <aside className={`sidebar${collapsed ? " sidebar--collapsed" : ""}`}>
       <div className="sidebar__brand">
-        <div className="sidebar__brand-mark">
-          <AppIcon name="spark" />
+        <div className="sidebar__brand-top">
+          <div className="sidebar__brand-mark">
+            <AppIcon name="spark" />
+          </div>
+          <button className="sidebar__toggle" type="button" onClick={onToggle}>
+            <span aria-hidden="true">{collapsed ? "→" : "←"}</span>
+          </button>
         </div>
         <div className="sidebar__brand-copy">
           <strong>Kocluk Platformu</strong>

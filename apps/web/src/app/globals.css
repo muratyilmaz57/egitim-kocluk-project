@@ -369,6 +369,10 @@ textarea {
   min-height: 100vh;
 }
 
+.dashboard-shell--collapsed {
+  grid-template-columns: 96px 1fr;
+}
+
 .sidebar {
   position: sticky;
   top: 0;
@@ -381,6 +385,11 @@ textarea {
   color: white;
   backdrop-filter: blur(22px);
   overflow: hidden;
+  transition: padding 180ms ease, width 180ms ease;
+}
+
+.sidebar--collapsed {
+  padding-inline: 12px;
 }
 
 .sidebar__brand {
@@ -394,6 +403,13 @@ textarea {
     linear-gradient(145deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.04));
   border: 1px solid rgba(255, 255, 255, 0.12);
   box-shadow: 0 20px 40px rgba(3, 7, 18, 0.26);
+}
+
+.sidebar__brand-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
 }
 
 .sidebar__brand-mark {
@@ -439,6 +455,18 @@ textarea {
   color: rgba(255, 255, 255, 0.92);
   font-size: 0.84rem;
   font-weight: 600;
+}
+
+.sidebar__toggle {
+  width: 38px;
+  height: 38px;
+  border: 0;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  background: rgba(255, 255, 255, 0.12);
+  color: white;
+  flex-shrink: 0;
 }
 
 .sidebar__status svg {
@@ -517,6 +545,32 @@ textarea {
   color: rgba(255, 255, 255, 0.82);
 }
 
+.sidebar--collapsed .sidebar__brand {
+  padding: 14px 10px;
+}
+
+.sidebar--collapsed .sidebar__brand-copy,
+.sidebar--collapsed .sidebar__status,
+.sidebar--collapsed .sidebar__link-copy span,
+.sidebar--collapsed .sidebar__link-copy strong {
+  display: none;
+}
+
+.sidebar--collapsed .sidebar__nav {
+  justify-items: center;
+}
+
+.sidebar--collapsed .sidebar__link {
+  grid-template-columns: 1fr;
+  justify-items: center;
+  padding: 12px 10px;
+}
+
+.sidebar--collapsed .sidebar__link-icon {
+  width: 44px;
+  height: 44px;
+}
+
 .main-panel {
   padding: 24px 26px 32px;
 }
@@ -543,6 +597,25 @@ textarea {
   display: grid;
   gap: 6px;
   max-width: 760px;
+}
+
+.topbar__eyebrow-row {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.topbar__menu-toggle {
+  border: 0;
+  border-radius: 999px;
+  padding: 8px 12px;
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.14);
+  color: white;
+  font-weight: 700;
 }
 
 .topbar__eyebrow {
@@ -927,6 +1000,44 @@ textarea {
   justify-content: flex-end;
   gap: 14px;
   align-items: center;
+}
+
+.color-picker-field {
+  display: grid;
+  gap: 12px;
+}
+
+.color-picker-field__row {
+  display: grid;
+  grid-template-columns: 72px 1fr;
+  gap: 12px;
+}
+
+.color-picker-field__swatch {
+  width: 72px;
+  min-height: 52px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: white;
+  padding: 6px;
+}
+
+.color-palette {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.color-palette__chip {
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  border: 2px solid rgba(255, 255, 255, 0.72);
+  box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.08);
+}
+
+.color-palette__chip--active {
+  box-shadow: 0 0 0 2px rgba(49, 88, 214, 0.3);
 }
 
 .notification-panel__list {
@@ -2244,6 +2355,10 @@ textarea {
     grid-template-columns: 1fr;
   }
 
+  .dashboard-shell--collapsed {
+    grid-template-columns: 1fr;
+  }
+
   .sidebar {
     position: static;
     border-right: 0;
@@ -2271,7 +2386,8 @@ textarea {
   .filter-form,
   .planner-toolbar-card__row,
   .planner-panel__heading,
-  .topbar {
+  .topbar,
+  .topbar__eyebrow-row {
     flex-direction: column;
     align-items: stretch;
   }
@@ -2319,6 +2435,20 @@ textarea {
 
   .sidebar {
     padding: 14px;
+  }
+
+  .sidebar--collapsed .sidebar__brand-copy,
+  .sidebar--collapsed .sidebar__status {
+    display: grid;
+  }
+
+  .sidebar--collapsed .sidebar__link {
+    grid-template-columns: 40px 1fr;
+    justify-items: stretch;
+  }
+
+  .sidebar--collapsed .sidebar__link-copy strong {
+    display: block;
   }
 
   .sidebar__link {

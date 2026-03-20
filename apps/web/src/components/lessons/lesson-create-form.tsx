@@ -7,9 +7,19 @@ type LessonCreateFormProps = {
   onSuccessRedirectTo?: string;
 };
 
+const COLOR_PRESETS = [
+  "#3158d6",
+  "#b87938",
+  "#6f58d9",
+  "#d15c78",
+  "#0f766e",
+  "#2563eb",
+];
+
 export function LessonCreateForm({ onSuccessRedirectTo }: LessonCreateFormProps) {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
+  const [color, setColor] = useState("#3158d6");
   const [isPending, startTransition] = useTransition();
 
   async function submitForm(formData: FormData) {
@@ -23,7 +33,7 @@ export function LessonCreateForm({ onSuccessRedirectTo }: LessonCreateFormProps)
       body: JSON.stringify({
         name: String(formData.get("name") ?? ""),
         code: String(formData.get("code") ?? "") || undefined,
-        color: String(formData.get("color") ?? "") || undefined,
+        color: color || undefined,
       }),
     });
 
@@ -61,7 +71,35 @@ export function LessonCreateForm({ onSuccessRedirectTo }: LessonCreateFormProps)
         </label>
         <label className="auth-field" style={{ gridColumn: "1 / -1" }}>
           <span>Renk</span>
-          <input name="color" placeholder="#3158d6" />
+          <div className="color-picker-field">
+            <div className="color-picker-field__row">
+              <input
+                aria-label="Renk sec"
+                className="color-picker-field__swatch"
+                type="color"
+                value={color}
+                onChange={(event) => setColor(event.target.value)}
+              />
+              <input
+                name="color"
+                value={color}
+                onChange={(event) => setColor(event.target.value)}
+                placeholder="#3158d6"
+              />
+            </div>
+            <div className="color-palette">
+              {COLOR_PRESETS.map((preset) => (
+                <button
+                  key={preset}
+                  aria-label={`${preset} rengini sec`}
+                  className={`color-palette__chip${color === preset ? " color-palette__chip--active" : ""}`}
+                  style={{ background: preset }}
+                  type="button"
+                  onClick={() => setColor(preset)}
+                />
+              ))}
+            </div>
+          </div>
         </label>
       </div>
       {error ? <div className="auth-error">{error}</div> : null}
