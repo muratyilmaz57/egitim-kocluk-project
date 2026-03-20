@@ -6,9 +6,13 @@ import type { LessonRecord } from "@web/lib/api";
 
 type ResourceCreateFormProps = {
   lessons: LessonRecord[];
+  onSuccessRedirectTo?: string;
 };
 
-export function ResourceCreateForm({ lessons }: ResourceCreateFormProps) {
+export function ResourceCreateForm({
+  lessons,
+  onSuccessRedirectTo,
+}: ResourceCreateFormProps) {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
@@ -67,6 +71,11 @@ export function ResourceCreateForm({ lessons }: ResourceCreateFormProps) {
     }
 
     startTransition(() => {
+      if (onSuccessRedirectTo) {
+        router.replace(onSuccessRedirectTo);
+        return;
+      }
+
       router.refresh();
     });
   }

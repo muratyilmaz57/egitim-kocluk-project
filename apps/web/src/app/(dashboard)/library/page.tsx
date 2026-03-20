@@ -4,13 +4,23 @@ import { SectionCard } from "@web/components/dashboard/section-card";
 import { AppShell } from "@web/components/layout/app-shell";
 import { ResourceActions } from "@web/components/resources/resource-actions";
 import { ResourceCreateForm } from "@web/components/resources/resource-create-form";
+import { ModalFrame } from "@web/components/ui/modal-frame";
 import { getCurrentUser, getLessons, getResources } from "@web/lib/api";
 
-export default async function LibraryPage() {
+type LibraryPageProps = {
+  searchParams?: Promise<{
+    create?: string;
+  }>;
+};
+
+export default async function LibraryPage({ searchParams }: LibraryPageProps) {
   const currentUser = await getCurrentUser();
   if (!currentUser) {
     redirect("/login");
   }
+
+  const resolvedSearchParams = searchParams ? await searchParams : undefined;
+  const createOpen = resolvedSearchParams?.create === "1";
 
   const [resources, lessons] = await Promise.all([
     getResources(),
@@ -26,23 +36,19 @@ export default async function LibraryPage() {
         currentUser.role === "student"
           ? [{ label: "Profilim", href: `/students/${currentUser.studentProfileId}` }]
           : [
-              { label: "Kaynak ekle", href: "/library" },
+              { label: "Kaynak ekle", href: "/library?create=1", icon: "plus" },
               { label: "Dersler", href: "/lessons" },
             ]
       }
     >
-      {currentUser.role !== "student" ? (
-        <SectionCard
-          title="Yeni kaynak"
-          subtitle="PDF, video ve link tabanli kaynak ekle"
-        >
-          <ResourceCreateForm lessons={lessons} />
-        </SectionCard>
-      ) : null}
-
       <SectionCard
         title={currentUser.role === "student" ? "Bana uygun kaynaklar" : "Kaynak listesi"}
         subtitle="PDF, video ve not kaynaklari"
+        action={
+          currentUser.role !== "student"
+            ? { label: "Kaynak ekle", href: "/library?create=1", icon: "plus" }
+            : undefined
+        }
       >
         <div className="list">
           {resources.length ? (
@@ -83,6 +89,16 @@ export default async function LibraryPage() {
           )}
         </div>
       </SectionCard>
+
+      {currentUser.role !== "student" && createOpen ? (
+        <ModalFrame
+          closeHref="/library"
+          title="Yeni kaynak ekle"
+          subtitle="PDF, video veya link kaydini kutuphaneye ekle"
+        >
+          <ResourceCreateForm lessons={lessons} onSuccessRedirectTo="/library" />
+        </ModalFrame>
+      ) : null}
     </AppShell>
   );
 }

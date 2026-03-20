@@ -7,9 +7,14 @@ import type { StudentSummary } from "@web/lib/api";
 type NoteCreateFormProps = {
   students: StudentSummary[];
   defaultStudentId?: string | null;
+  onSuccessRedirectTo?: string;
 };
 
-export function NoteCreateForm({ students, defaultStudentId = null }: NoteCreateFormProps) {
+export function NoteCreateForm({
+  students,
+  defaultStudentId = null,
+  onSuccessRedirectTo,
+}: NoteCreateFormProps) {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
@@ -38,6 +43,11 @@ export function NoteCreateForm({ students, defaultStudentId = null }: NoteCreate
     }
 
     startTransition(() => {
+      if (onSuccessRedirectTo) {
+        router.replace(onSuccessRedirectTo);
+        return;
+      }
+
       router.refresh();
     });
   }

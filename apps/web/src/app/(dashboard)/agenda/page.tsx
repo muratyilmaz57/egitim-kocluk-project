@@ -3,13 +3,23 @@ import { SectionCard } from "@web/components/dashboard/section-card";
 import { AppShell } from "@web/components/layout/app-shell";
 import { NoteActions } from "@web/components/notes/note-actions";
 import { NoteCreateForm } from "@web/components/notes/note-create-form";
+import { ModalFrame } from "@web/components/ui/modal-frame";
 import { formatDate, getCurrentUser, getNotes, getStudents } from "@web/lib/api";
 
-export default async function AgendaPage() {
+type AgendaPageProps = {
+  searchParams?: Promise<{
+    create?: string;
+  }>;
+};
+
+export default async function AgendaPage({ searchParams }: AgendaPageProps) {
   const currentUser = await getCurrentUser();
   if (!currentUser) {
     redirect("/login");
   }
+
+  const resolvedSearchParams = searchParams ? await searchParams : undefined;
+  const createOpen = resolvedSearchParams?.create === "1";
 
   const [notes, students] = await Promise.all([
     getNotes(),
@@ -25,26 +35,22 @@ export default async function AgendaPage() {
         currentUser.role === "student"
           ? [{ label: "Mesajlar", href: "/messages" }]
           : [
-              { label: "Gorusme ekle", href: "/agenda" },
-              { label: "Hatirlatici", href: "/agenda" },
+              { label: "Kayit ekle", href: "/agenda?create=1", icon: "plus" },
+              { label: "Mesajlar", href: "/messages" },
             ]
       }
     >
-      {currentUser.role !== "student" ? (
-        <SectionCard
-          title="Yeni ajanda kaydi"
-          subtitle="Gorusme, hatirlatici veya haftalik not ekle"
-        >
-          <NoteCreateForm students={students} />
-        </SectionCard>
-      ) : null}
-
       <SectionCard
         title={currentUser.role === "student" ? "Bana acik notlar" : "Not ve ajanda akisi"}
         subtitle={
           currentUser.role === "student"
             ? "Koç tarafindan ogrenciye acilan gorusme ve not kayitlari"
             : "Gorusmeler, raporlar ve hatirlaticilar"
+        }
+        action={
+          currentUser.role !== "student"
+            ? { label: "Kayit ekle", href: "/agenda?create=1", icon: "plus" }
+            : undefined
         }
       >
         <div className="list">
@@ -74,6 +80,16 @@ export default async function AgendaPage() {
           )}
         </div>
       </SectionCard>
+
+      {currentUser.role !== "student" && createOpen ? (
+        <ModalFrame
+          closeHref="/agenda"
+          title="Yeni ajanda kaydi"
+          subtitle="Gorusme, hatirlatici veya haftalik not ekle"
+        >
+          <NoteCreateForm students={students} onSuccessRedirectTo="/agenda" />
+        </ModalFrame>
+      ) : null}
     </AppShell>
   );
 }
