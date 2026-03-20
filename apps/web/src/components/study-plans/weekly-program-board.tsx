@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import type {
+  LessonRecord,
   SessionUser,
   StudentSummary,
   StudyPlanRecord,
@@ -16,6 +17,7 @@ import { StudyPlanActions } from "./study-plan-actions";
 type WeeklyProgramBoardProps = {
   user: SessionUser;
   students: StudentSummary[];
+  lessons: LessonRecord[];
   selectedStudentId?: string | null;
   plans: StudyPlanRecord[];
   tasks: TaskRecord[];
@@ -131,6 +133,7 @@ function nextDueAt(isoDate: string, currentDueAt: string | null) {
 export function WeeklyProgramBoard({
   user,
   students,
+  lessons,
   selectedStudentId,
   plans,
   tasks,
@@ -339,6 +342,7 @@ export function WeeklyProgramBoard({
               <TaskCreateForm
                 key={`${selectedStudentId ?? "all"}-${selectedDate}`}
                 students={students}
+                lessons={lessons}
                 defaultStudentId={selectedStudentId ?? students[0]?.id ?? null}
                 defaultDueAt={`${selectedDate}T17:00:00.000Z`}
               />

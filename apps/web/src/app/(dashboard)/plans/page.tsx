@@ -1,7 +1,13 @@
 import { redirect } from "next/navigation";
 import { AppShell } from "@web/components/layout/app-shell";
 import { WeeklyProgramBoard } from "@web/components/study-plans/weekly-program-board";
-import { getCurrentUser, getStudents, getStudyPlansForStudent, getTasks } from "@web/lib/api";
+import {
+  getCurrentUser,
+  getLessons,
+  getStudents,
+  getStudyPlansForStudent,
+  getTasks,
+} from "@web/lib/api";
 
 function startOfWeek(baseDate: Date) {
   const date = new Date(baseDate);
@@ -56,9 +62,10 @@ export default async function PlansPage({
       : rawStudentId ?? students[0]?.id;
   const weekOffset = rawWeekOffset ? Number.parseInt(rawWeekOffset, 10) || 0 : 0;
 
-  const [plans, tasks] = await Promise.all([
+  const [plans, tasks, lessons] = await Promise.all([
     getStudyPlansForStudent(selectedStudentId),
     getTasks(selectedStudentId),
+    currentUser.role === "student" ? Promise.resolve([]) : getLessons(),
   ]);
 
   const weekStartDate = startOfWeek(addDays(new Date(), weekOffset * 7));
@@ -85,6 +92,7 @@ export default async function PlansPage({
       <WeeklyProgramBoard
         user={currentUser}
         students={students}
+        lessons={lessons}
         selectedStudentId={selectedStudentId}
         plans={plans}
         tasks={tasks}

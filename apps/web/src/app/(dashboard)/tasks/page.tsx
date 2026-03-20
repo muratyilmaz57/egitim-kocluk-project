@@ -3,10 +3,12 @@ import { SectionCard } from "@web/components/dashboard/section-card";
 import { AppShell } from "@web/components/layout/app-shell";
 import { TaskActions } from "@web/components/tasks/task-actions";
 import { TaskCreateForm } from "@web/components/tasks/task-create-form";
+import { ModalFrame } from "@web/components/ui/modal-frame";
 import {
   formatDate,
   formatTaskStatus,
   getCurrentUser,
+  getLessons,
   getStudents,
   getTasks,
 } from "@web/lib/api";
@@ -21,6 +23,7 @@ export default async function TasksPage({
   searchParams: Promise<{
     q?: string;
     status?: string;
+    create?: string;
   }>;
 }) {
   const currentUser = await getCurrentUser();
@@ -28,11 +31,13 @@ export default async function TasksPage({
     redirect("/login");
   }
 
-  const [{ q = "", status = "" }, students, tasks] = await Promise.all([
+  const [{ q = "", status = "", create = "" }, students, tasks, lessons] = await Promise.all([
     searchParams,
     currentUser.role === "student" ? Promise.resolve([]) : getStudents(),
     getTasks(),
+    currentUser.role === "student" ? Promise.resolve([]) : getLessons(),
   ]);
+  const createOpen = create === "1";
   const filteredTasks = tasks.filter((task) => {
     const queryMatch = q
       ? matches(
@@ -56,25 +61,20 @@ export default async function TasksPage({
         currentUser.role === "student"
           ? [{ label: "Planlarim", href: "/plans" }]
           : [
-              { label: "Gorev ata", href: "/tasks" },
+              { label: "Gorev ekle", href: "/tasks?create=1", icon: "plus" },
               { label: "Planlar", href: "/plans" },
             ]
       }
     >
       <section className="two-column">
-        {currentUser.role !== "student" ? (
-          <SectionCard
-            title="Yeni gorev ata"
-            subtitle="Secilen ogrenciye canli veritabaninda gorev olusturur"
-          >
-            <TaskCreateForm students={students} />
-          </SectionCard>
-        ) : null}
-
         <SectionCard
           title={currentUser.role === "student" ? "Aktif gorevlerim" : "Aktif gorevler"}
           subtitle={currentUser.role === "student" ? "Kendi gorev durumun" : "Tum ogrenciler icin son durum"}
-          action={{ label: "CSV indir", href: exportHref }}
+          action={
+            currentUser.role === "student"
+              ? { label: "CSV indir", href: exportHref }
+              : { label: "Gorev ekle", href: "/tasks?create=1", icon: "plus" }
+          }
         >
           <form className="filter-form" method="get" style={{ marginBottom: 14 }}>
             <input defaultValue={q} name="q" placeholder="Gorev, ogrenci veya konu ara" />
@@ -159,6 +159,28 @@ export default async function TasksPage({
           )}
         </div>
       </SectionCard>
+
+      {currentUser.role !== "student" && createOpen ? (
+        <ModalFrame
+          closeHref="/tasks"
+          title="Gorev Ekle"
+          subtitle={`${selectedStudentLabel(students)} icin yeni gorev akisi`}
+        >
+          <TaskCreateForm
+            students={students}
+            lessons={lessons}
+            onSuccessRedirectTo="/tasks"
+          />
+        </ModalFrame>
+      ) : null}
     </AppShell>
   );
+}
+
+function selectedStudentLabel(students: Awaited<ReturnType<typeof getStudents>>) {
+  if (students.length === 1) {
+    return students[0]?.fullName ?? "Secili ogrenci";
+  }
+
+  return "secili ogrenci";
 }
