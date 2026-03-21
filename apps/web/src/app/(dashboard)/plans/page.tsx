@@ -1,6 +1,9 @@
 import { redirect } from "next/navigation";
 import { AppShell } from "@web/components/layout/app-shell";
+import { TaskCreateForm } from "@web/components/tasks/task-create-form";
 import { WeeklyProgramBoard } from "@web/components/study-plans/weekly-program-board";
+import { StudyPlanCreateForm } from "@web/components/study-plans/study-plan-create-form";
+import { ModalFrame } from "@web/components/ui/modal-frame";
 import {
   getCurrentUser,
   getLessons,
@@ -47,6 +50,9 @@ export default async function PlansPage({
   searchParams: Promise<{
     studentId?: string;
     weekOffset?: string;
+    createTask?: string;
+    createPlan?: string;
+    dueDate?: string;
   }>;
 }) {
   const currentUser = await getCurrentUser();
@@ -54,7 +60,13 @@ export default async function PlansPage({
     redirect("/login");
   }
 
-  const { studentId: rawStudentId, weekOffset: rawWeekOffset } = await searchParams;
+  const {
+    studentId: rawStudentId,
+    weekOffset: rawWeekOffset,
+    createTask,
+    createPlan,
+    dueDate,
+  } = await searchParams;
   const students = currentUser.role === "student" ? [] : await getStudents();
   const selectedStudentId =
     currentUser.role === "student"
@@ -74,6 +86,14 @@ export default async function PlansPage({
   const weekStart = formatIsoDate(weekStartDate);
   const weekEnd = formatIsoDate(weekEndDate);
   const weekLabel = formatWeekLabel(weekStartDate, weekEndDate);
+  const closeParams = new URLSearchParams();
+  if (selectedStudentId) {
+    closeParams.set("studentId", selectedStudentId);
+  }
+  if (weekOffset !== 0) {
+    closeParams.set("weekOffset", String(weekOffset));
+  }
+  const closeHref = closeParams.toString() ? `/plans?${closeParams.toString()}` : "/plans";
 
   return (
     <AppShell
@@ -102,6 +122,38 @@ export default async function PlansPage({
         weekStart={weekStart}
         weekEnd={weekEnd}
       />
+
+      {currentUser.role !== "student" && createTask === "1" ? (
+        <ModalFrame
+          closeHref={closeHref}
+          title="Yeni gorev"
+          subtitle="Secili hafta ve ogrenci icin gorev ata"
+        >
+          <TaskCreateForm
+            students={students}
+            lessons={lessons}
+            defaultStudentId={selectedStudentId ?? students[0]?.id ?? null}
+            defaultDueAt={`${(dueDate ?? weekStart)}T17:00:00.000Z`}
+            onSuccessRedirectTo={closeHref}
+          />
+        </ModalFrame>
+      ) : null}
+
+      {currentUser.role !== "student" && createPlan === "1" ? (
+        <ModalFrame
+          closeHref={closeHref}
+          title="Yeni plan"
+          subtitle="Secili hafta icin hizli plan olustur"
+        >
+          <StudyPlanCreateForm
+            students={students}
+            defaultStudentId={selectedStudentId ?? students[0]?.id ?? null}
+            defaultStartDate={weekStart}
+            defaultEndDate={weekEnd}
+            onSuccessRedirectTo={closeHref}
+          />
+        </ModalFrame>
+      ) : null}
     </AppShell>
   );
 }

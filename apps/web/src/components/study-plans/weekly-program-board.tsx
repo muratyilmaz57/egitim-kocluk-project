@@ -10,8 +10,7 @@ import type {
   StudyPlanRecord,
   TaskRecord,
 } from "@web/lib/api";
-import { TaskCreateForm } from "../tasks/task-create-form";
-import { StudyPlanCreateForm } from "./study-plan-create-form";
+import { TaskActions } from "../tasks/task-actions";
 import { StudyPlanActions } from "./study-plan-actions";
 
 type WeeklyProgramBoardProps = {
@@ -120,6 +119,28 @@ function buildHref(pathname: string, weekOffset: number, selectedStudentId?: str
   return query ? `${pathname}?${query}` : pathname;
 }
 
+function buildModalHref(
+  pathname: string,
+  weekOffset: number,
+  selectedStudentId: string | null | undefined,
+  mode: "createTask" | "createPlan",
+  dueDate?: string,
+) {
+  const params = new URLSearchParams();
+  params.set(mode, "1");
+  if (weekOffset !== 0) {
+    params.set("weekOffset", String(weekOffset));
+  }
+  if (selectedStudentId) {
+    params.set("studentId", selectedStudentId);
+  }
+  if (dueDate) {
+    params.set("dueDate", dueDate);
+  }
+
+  return `${pathname}?${params.toString()}`;
+}
+
 function nextDueAt(isoDate: string, currentDueAt: string | null) {
   const target = new Date(`${isoDate}T09:00:00`);
   if (currentDueAt) {
@@ -148,8 +169,6 @@ export function WeeklyProgramBoard({
   const today = new Date();
   const [dragEnabled, setDragEnabled] = useState(true);
   const [hourlyMode, setHourlyMode] = useState(false);
-  const [showTaskForm, setShowTaskForm] = useState(user.role !== "student" && tasks.length === 0);
-  const [showPlanForm, setShowPlanForm] = useState(false);
   const [selectedDate, setSelectedDate] = useState<string>(
     weekDays.find((day) => sameDay(day, today)) ?? weekDays[0] ?? weekStart,
   );
@@ -280,8 +299,10 @@ export function WeeklyProgramBoard({
                   className="planner-action planner-action--primary"
                   type="button"
                   onClick={() => {
-                    setSelectedDate(weekDays[0] ?? weekStart);
-                    setShowTaskForm((current) => !current);
+                    const dueDate = selectedDate || weekDays[0] || weekStart;
+                    router.push(
+                      buildModalHref(pathname, weekOffset, selectedStudentId, "createTask", dueDate),
+                    );
                   }}
                 >
                   + Gorev Ekle
@@ -289,7 +310,9 @@ export function WeeklyProgramBoard({
                 <button
                   className="planner-action"
                   type="button"
-                  onClick={() => setShowPlanForm((current) => !current)}
+                  onClick={() =>
+                    router.push(buildModalHref(pathname, weekOffset, selectedStudentId, "createPlan"))
+                  }
                 >
                   Hizli Program
                 </button>
@@ -333,39 +356,6 @@ export function WeeklyProgramBoard({
 
           {error ? <div className="auth-error">{error}</div> : null}
 
-          {canManage && showTaskForm ? (
-            <div className="planner-inline-card" id="quick-task-form">
-              <div className="planner-inline-card__header">
-                <strong>Secili gun icin gorev ekle</strong>
-                <span>{formatDayDate(selectedDate)}</span>
-              </div>
-              <TaskCreateForm
-                key={`${selectedStudentId ?? "all"}-${selectedDate}`}
-                students={students}
-                lessons={lessons}
-                defaultStudentId={selectedStudentId ?? students[0]?.id ?? null}
-                defaultDueAt={`${selectedDate}T17:00:00.000Z`}
-              />
-            </div>
-          ) : null}
-
-          {canManage && showPlanForm ? (
-            <div className="planner-inline-card" id="quick-plan-form">
-              <div className="planner-inline-card__header">
-                <strong>Haftaya hizli plan ekle</strong>
-                <span>
-                  {formatDayDate(weekStart)} - {formatDayDate(weekEnd)}
-                </span>
-              </div>
-              <StudyPlanCreateForm
-                key={`${selectedStudentId ?? "all"}-${weekStart}`}
-                students={students}
-                defaultStudentId={selectedStudentId ?? students[0]?.id ?? null}
-                defaultStartDate={weekStart}
-                defaultEndDate={weekEnd}
-              />
-            </div>
-          ) : null}
         </div>
       </section>
 
@@ -420,7 +410,9 @@ export function WeeklyProgramBoard({
                     type="button"
                     onClick={() => {
                       setSelectedDate(day.isoDate);
-                      setShowTaskForm(true);
+                      router.push(
+                        buildModalHref(pathname, weekOffset, selectedStudentId, "createTask", day.isoDate),
+                      );
                     }}
                   >
                     +
@@ -451,6 +443,7 @@ export function WeeklyProgramBoard({
                         {task.targetQuestionCount ? <span>{task.targetQuestionCount} soru</span> : null}
                         <span>%{task.progressPercent}</span>
                       </div>
+                      {canManage ? <TaskActions task={task} lessons={lessons} /> : null}
                     </article>
                   ))
                 ) : (

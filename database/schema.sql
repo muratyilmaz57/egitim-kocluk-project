@@ -281,6 +281,7 @@ CREATE TABLE notes (
   content TEXT NOT NULL,
   visibility ENUM('private', 'student_visible', 'parent_visible') NOT NULL DEFAULT 'private',
   rating TINYINT UNSIGNED NULL,
+  scheduled_for DATETIME NULL,
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   CONSTRAINT fk_notes_student

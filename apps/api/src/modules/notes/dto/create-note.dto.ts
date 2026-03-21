@@ -1,5 +1,5 @@
 import { NoteType, NoteVisibility } from "@prisma/client";
-import { IsEnum, IsInt, IsNotEmpty, IsOptional, IsString, MaxLength, Min } from "class-validator";
+import { IsDateString, IsEnum, IsInt, IsNotEmpty, IsOptional, IsString, MaxLength, Min } from "class-validator";
 
 export class CreateNoteDto {
   @IsInt()
@@ -25,4 +25,8 @@ export class CreateNoteDto {
   @IsInt()
   @Min(1)
   rating?: number;
+
+  @IsOptional()
+  @IsDateString()
+  scheduledFor?: string;
 }

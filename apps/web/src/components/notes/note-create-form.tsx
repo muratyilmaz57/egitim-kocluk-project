@@ -10,6 +10,14 @@ type NoteCreateFormProps = {
   onSuccessRedirectTo?: string;
 };
 
+function toDateInputValue(value?: string | null) {
+  if (!value) {
+    return new Date().toISOString().slice(0, 10);
+  }
+
+  return new Date(value).toISOString().slice(0, 10);
+}
+
 export function NoteCreateForm({
   students,
   defaultStudentId = null,
@@ -33,6 +41,7 @@ export function NoteCreateForm({
         content: String(formData.get("content") ?? ""),
         visibility: String(formData.get("visibility") ?? "private"),
         rating: formData.get("rating") ? Number(formData.get("rating")) : undefined,
+        scheduledFor: String(formData.get("scheduledFor") ?? ""),
       }),
     });
 
@@ -97,9 +106,13 @@ export function NoteCreateForm({
           <span>Puan</span>
           <input name="rating" type="number" min="1" max="10" placeholder="8" />
         </label>
+        <label className="auth-field">
+          <span>Tarih</span>
+          <input name="scheduledFor" type="date" required defaultValue={toDateInputValue()} />
+        </label>
         <label className="auth-field" style={{ gridColumn: "1 / -1" }}>
           <span>Baslik</span>
-          <input name="title" required placeholder="Haftalik degerlendirme" />
+          <input name="title" required placeholder="Haftalik degerlendirme" autoFocus />
         </label>
         <label className="auth-field" style={{ gridColumn: "1 / -1" }}>
           <span>Icerik</span>

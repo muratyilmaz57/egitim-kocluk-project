@@ -60,7 +60,7 @@ export default async function AgendaPage({ searchParams }: AgendaPageProps) {
                 <div className="list-item__meta">
                   <strong>{note.title}</strong>
                   <span>
-                    {note.studentName} | {note.noteType} | {formatDate(note.createdAt)}
+                    {note.studentName} | {note.noteType} | {formatDate(note.scheduledFor ?? note.createdAt)}
                   </span>
                   <span>{note.content}</span>
                 </div>

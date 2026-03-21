@@ -9,6 +9,7 @@ type StudyPlanCreateFormProps = {
   defaultStudentId?: string | null;
   defaultStartDate?: string | null;
   defaultEndDate?: string | null;
+  onSuccessRedirectTo?: string;
 };
 
 function toDateInputValue(value?: string | null) {
@@ -24,6 +25,7 @@ export function StudyPlanCreateForm({
   defaultStudentId,
   defaultStartDate,
   defaultEndDate,
+  onSuccessRedirectTo,
 }: StudyPlanCreateFormProps) {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
@@ -55,6 +57,11 @@ export function StudyPlanCreateForm({
     }
 
     startTransition(() => {
+      if (onSuccessRedirectTo) {
+        router.replace(onSuccessRedirectTo);
+        return;
+      }
+
       router.refresh();
     });
   }
@@ -74,7 +81,7 @@ export function StudyPlanCreateForm({
           </option>
         ))}
       </select>
-      <input name="title" required placeholder="17-23 Mart haftalik plan" />
+      <input name="title" required placeholder="17-23 Mart haftalik plan" autoFocus />
       <div className="inline-grid inline-grid--2">
         <select name="planType" defaultValue="weekly">
           <option value="weekly">Haftalik</option>

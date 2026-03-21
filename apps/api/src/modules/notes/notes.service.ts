@@ -49,9 +49,7 @@ export class NotesService {
         include: {
           student: true,
         },
-        orderBy: {
-          createdAt: "desc",
-        },
+        orderBy: [{ scheduledFor: "desc" }, { createdAt: "desc" }],
       });
 
       return notes.map((note) => ({
@@ -62,6 +60,7 @@ export class NotesService {
         visibility: note.visibility,
         studentId: note.studentId.toString(),
         rating: note.rating,
+        scheduledFor: note.scheduledFor,
         createdAt: note.createdAt,
         studentName: note.student.fullName,
       }));
@@ -101,6 +100,7 @@ export class NotesService {
           content: dto.content,
           visibility: dto.visibility,
           rating: dto.rating,
+          scheduledFor: dto.scheduledFor ? new Date(dto.scheduledFor) : undefined,
         },
         include: {
           student: true,
@@ -142,6 +142,7 @@ export class NotesService {
         visibility: note.visibility,
         studentId: note.studentId.toString(),
         rating: note.rating,
+        scheduledFor: note.scheduledFor,
         createdAt: note.createdAt,
         studentName: note.student.fullName,
       };
@@ -182,6 +183,9 @@ export class NotesService {
           ...(dto.content ? { content: dto.content } : {}),
           ...(dto.visibility ? { visibility: dto.visibility } : {}),
           ...(typeof dto.rating === "number" ? { rating: dto.rating } : {}),
+          ...(dto.scheduledFor !== undefined
+            ? { scheduledFor: dto.scheduledFor ? new Date(dto.scheduledFor) : null }
+            : {}),
         },
         include: {
           student: true,
@@ -211,6 +215,7 @@ export class NotesService {
         visibility: updated.visibility,
         studentId: updated.studentId.toString(),
         rating: updated.rating,
+        scheduledFor: updated.scheduledFor,
         createdAt: updated.createdAt,
         studentName: updated.student.fullName,
       };

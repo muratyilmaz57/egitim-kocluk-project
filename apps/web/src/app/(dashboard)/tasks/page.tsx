@@ -107,7 +107,7 @@ export default async function TasksPage({
                       {formatTaskStatus(task.status)}
                     </span>
                     {currentUser.role !== "student" ? (
-                      <TaskActions task={task} />
+                      <TaskActions task={task} lessons={lessons} />
                     ) : null}
                   </div>
                 </div>
@@ -144,7 +144,7 @@ export default async function TasksPage({
                 <div className="list-item__aside">
                   <span className="badge badge--success">%{task.progressPercent}</span>
                   {currentUser.role !== "student" ? (
-                    <TaskActions task={task} />
+                    <TaskActions task={task} lessons={lessons} />
                   ) : null}
                 </div>
               </div>

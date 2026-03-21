@@ -197,6 +197,8 @@ export type TaskRecord = {
   status: string;
   progressPercent: number;
   dueAt: string | null;
+  lessonId: string | null;
+  topicId: string | null;
   student: {
     id: string;
     fullName: string;
@@ -312,6 +314,7 @@ export type NoteRecord = {
   visibility: string;
   studentId?: string;
   rating?: number | null;
+  scheduledFor: string | null;
   createdAt: string;
   studentName: string;
 };

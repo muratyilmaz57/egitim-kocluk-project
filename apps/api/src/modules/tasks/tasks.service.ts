@@ -61,6 +61,8 @@ export class TasksService {
         status: task.status,
         progressPercent: task.progressPercent,
         dueAt: task.dueAt,
+        lessonId: task.lessonId?.toString() ?? null,
+        topicId: task.topicId?.toString() ?? null,
         student: {
           id: task.student.id.toString(),
           fullName: task.student.fullName,
@@ -150,6 +152,8 @@ export class TasksService {
         status: task.status,
         progressPercent: task.progressPercent,
         dueAt: task.dueAt,
+        lessonId: task.lessonId?.toString() ?? null,
+        topicId: task.topicId?.toString() ?? null,
         student: {
           id: task.student.id.toString(),
           fullName: task.student.fullName,
@@ -194,6 +198,18 @@ export class TasksService {
         data: {
           ...(dto.title ? { title: dto.title } : {}),
           ...(dto.description !== undefined ? { description: dto.description } : {}),
+          ...(dto.taskType ? { taskType: dto.taskType } : {}),
+          ...(typeof dto.targetQuestionCount === "number"
+            ? { targetQuestionCount: dto.targetQuestionCount }
+            : {}),
+          ...(typeof dto.targetMinutes === "number" ? { targetMinutes: dto.targetMinutes } : {}),
+          ...(dto.priority ? { priority: dto.priority } : {}),
+          ...(dto.lessonId !== undefined
+            ? { lessonId: dto.lessonId ? BigInt(dto.lessonId) : null }
+            : {}),
+          ...(dto.topicId !== undefined
+            ? { topicId: dto.topicId ? BigInt(dto.topicId) : null }
+            : {}),
           ...(dto.status ? { status: dto.status } : {}),
           ...(typeof dto.progressPercent === "number"
             ? { progressPercent: dto.progressPercent }
@@ -247,6 +263,8 @@ export class TasksService {
         status: updated.status,
         progressPercent: updated.progressPercent,
         dueAt: updated.dueAt,
+        lessonId: updated.lessonId?.toString() ?? null,
+        topicId: updated.topicId?.toString() ?? null,
         student: {
           id: updated.student.id.toString(),
           fullName: updated.student.fullName,

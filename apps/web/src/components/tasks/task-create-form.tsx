@@ -305,7 +305,7 @@ export function TaskCreateForm({
           <div className="student-form__grid">
             <label className="auth-field" style={{ gridColumn: "1 / -1" }}>
               <span>Gorev Basligi</span>
-              <input name="title" placeholder="Problemler 40 soru" required />
+              <input name="title" placeholder="Problemler 40 soru" required autoFocus />
             </label>
             <label className="auth-field">
               <span>Gorev Turu</span>
