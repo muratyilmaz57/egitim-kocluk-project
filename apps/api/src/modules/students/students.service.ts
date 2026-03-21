@@ -380,6 +380,7 @@ export class StudentsService {
     userId?: bigint | null;
     fullName: string;
     gradeLevel: string;
+    parentName?: string | null;
     targetExam: string | null;
     status: string;
     tasks?: Array<{ progressPercent: number }>;
@@ -399,6 +400,7 @@ export class StudentsService {
       userId: student.userId ? student.userId.toString() : null,
       fullName: student.fullName,
       gradeLevel: student.gradeLevel,
+      parentName: student.parentName ?? null,
       targetExam: student.targetExam,
       status: student.status,
       overallProgress,

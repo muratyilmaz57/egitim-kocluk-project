@@ -62,6 +62,15 @@ export default async function AgendaPage({ searchParams }: AgendaPageProps) {
                   <span>
                     {note.studentName} | {note.noteType} | {formatDate(note.scheduledFor ?? note.createdAt)}
                   </span>
+                  {note.tags.length ? (
+                    <div className="tag-list">
+                      {note.tags.map((tag) => (
+                        <span className="badge badge--success" key={`${note.id}-${tag}`}>
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  ) : null}
                   <span>{note.content}</span>
                 </div>
                 <div className="list-item__aside">

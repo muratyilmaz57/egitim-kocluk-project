@@ -92,6 +92,13 @@ enum NoteVisibility {
   parent_visible
 }
 
+enum NoteTargetType {
+  student
+  parent
+  grade
+  everyone
+}
+
 enum ResourceType {
   pdf
   video
@@ -198,6 +205,7 @@ model Student {
   pomodoros      PomodoroSession[]
   messages       Message[]
   notes          Note[]
+  noteTargets    NoteTarget[]
   notifications  Notification[]
   auditLogs      AuditLog[]
 
@@ -406,9 +414,26 @@ model Note {
   updatedAt  DateTime       @updatedAt @map("updated_at")
   student    Student        @relation(fields: [studentId], references: [id], onDelete: Cascade)
   coach      User           @relation(fields: [coachId], references: [id], onDelete: Restrict)
+  targets    NoteTarget[]
 
   @@index([studentId, noteType, createdAt])
   @@map("notes")
+}
+
+model NoteTarget {
+  id         BigInt         @id @default(autoincrement()) @db.UnsignedBigInt
+  noteId     BigInt         @map("note_id") @db.UnsignedBigInt
+  targetType NoteTargetType @map("target_type")
+  studentId  BigInt?        @map("student_id") @db.UnsignedBigInt
+  gradeLevel String?        @map("grade_level") @db.VarChar(30)
+  createdAt  DateTime       @default(now()) @map("created_at")
+  note       Note           @relation(fields: [noteId], references: [id], onDelete: Cascade)
+  student    Student?       @relation(fields: [studentId], references: [id], onDelete: SetNull)
+
+  @@index([noteId, targetType])
+  @@index([studentId, targetType])
+  @@index([gradeLevel, targetType])
+  @@map("note_targets")
 }
 
 model Resource {

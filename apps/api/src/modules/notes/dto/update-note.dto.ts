@@ -1,5 +1,16 @@
 import { NoteType, NoteVisibility } from "@prisma/client";
-import { IsDateString, IsEnum, IsInt, IsOptional, IsString, MaxLength, Min } from "class-validator";
+import {
+  ArrayUnique,
+  IsArray,
+  IsBoolean,
+  IsDateString,
+  IsEnum,
+  IsInt,
+  IsOptional,
+  IsString,
+  MaxLength,
+  Min,
+} from "class-validator";
 
 export class UpdateNoteDto {
   @IsOptional()
@@ -27,4 +38,29 @@ export class UpdateNoteDto {
   @IsOptional()
   @IsDateString()
   scheduledFor?: string;
+
+  @IsOptional()
+  @IsArray()
+  @ArrayUnique()
+  @IsInt({ each: true })
+  @Min(1, { each: true })
+  studentTargetIds?: number[];
+
+  @IsOptional()
+  @IsArray()
+  @ArrayUnique()
+  @IsInt({ each: true })
+  @Min(1, { each: true })
+  parentTargetIds?: number[];
+
+  @IsOptional()
+  @IsArray()
+  @ArrayUnique()
+  @IsString({ each: true })
+  @MaxLength(30, { each: true })
+  gradeLevels?: string[];
+
+  @IsOptional()
+  @IsBoolean()
+  targetEveryone?: boolean;
 }

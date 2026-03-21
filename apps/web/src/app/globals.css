@@ -1839,6 +1839,76 @@ textarea {
   background: white;
 }
 
+.audience-panel {
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid rgba(39, 57, 107, 0.14);
+  border-radius: 18px;
+  background: rgba(245, 247, 255, 0.9);
+}
+
+.audience-panel__toolbar {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+}
+
+.audience-chip-list,
+.tag-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.audience-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(39, 57, 107, 0.16);
+  background: #fff;
+  font-size: 0.92rem;
+  color: #26344d;
+}
+
+.audience-list {
+  display: grid;
+  gap: 10px;
+  max-height: 240px;
+  overflow: auto;
+}
+
+.audience-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(39, 57, 107, 0.12);
+  background: #fff;
+}
+
+.audience-row__main,
+.audience-row__aside {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.audience-row__main strong,
+.audience-row__aside span {
+  display: block;
+}
+
+.audience-row__main small {
+  display: block;
+  color: #6a7796;
+}
+
 .checkbox-field {
   display: flex;
   align-items: center;

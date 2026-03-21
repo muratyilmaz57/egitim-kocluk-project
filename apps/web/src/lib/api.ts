@@ -138,6 +138,7 @@ export type StudentSummary = {
   userId?: string | null;
   fullName: string;
   gradeLevel: string;
+  parentName?: string | null;
   targetExam: string | null;
   status: string;
   overallProgress: number;
@@ -317,6 +318,7 @@ export type NoteRecord = {
   scheduledFor: string | null;
   createdAt: string;
   studentName: string;
+  tags: string[];
 };
 
 async function apiGet<T>(path: string): Promise<T> {
