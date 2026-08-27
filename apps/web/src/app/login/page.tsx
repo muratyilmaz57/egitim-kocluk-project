@@ -12,11 +12,16 @@ export default async function LoginPage() {
     <main className="auth-page">
       <section className="auth-card">
         <div className="auth-card__hero">
-          <span className="topbar__eyebrow">Koç paneli girisi</span>
-          <h1>Kocluk Platformu</h1>
+          <span className="topbar__eyebrow">FTY Koçluk</span>
+          <h1>Gelişimi görünür kılan çalışma alanı.</h1>
           <p>
-            Dashboard, ogrenci listesi ve analiz ekranlarina erismek icin giris yapin.
+            Öğrenciler, planlar, görevler ve ilerleme verileri; sakin ve anlaşılır tek bir panelde.
           </p>
+          <div className="auth-card__promise">
+            <span>Planla</span>
+            <span>Takip et</span>
+            <span>Geliştir</span>
+          </div>
         </div>
 
         <LoginForm />

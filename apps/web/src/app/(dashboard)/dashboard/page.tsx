@@ -5,6 +5,7 @@ import { SectionCard } from "@web/components/dashboard/section-card";
 import { StatCard } from "@web/components/dashboard/stat-card";
 import { StatusBreakdown } from "@web/components/dashboard/status-breakdown";
 import { AppIcon } from "@web/components/ui/app-icon";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import {
   formatDate,
@@ -40,35 +41,35 @@ export default async function DashboardPage() {
   const dashboardStats = summary
     ? [
         {
-          label: "Toplam ogrenci",
+          label: "Toplam öğrenci",
           value: String(summary.totalStudents),
-          meta: "Canli veritabani ozeti",
+          meta: "Aktif öğrenci profilleri",
           icon: "students" as const,
           tone: "teal" as const,
         },
         {
           label: "Aktif ders",
           value: String(summary.totalLessons),
-          meta: "Programdaki aktif dersler",
+          meta: "Programdaki dersler",
           icon: "lessons" as const,
           tone: "sky" as const,
         },
         {
-          label: "Bugun tamamlanan gorev",
+          label: "Tamamlanan görev",
           value: String(summary.completedTasksToday),
-          meta: "Gun icindeki kapanan gorevler",
+          meta: "Bugün sonuçlanan çalışmalar",
           icon: "tasks" as const,
           tone: "amber" as const,
         },
         {
-          label: "Gunluk toplam calisma",
+          label: "Günlük odak",
           value: formatMinutes(summary.dailyStudyMinutes),
-          meta: "Pomodoro odak suresi",
+          meta: "Toplam Pomodoro süresi",
           icon: "focus" as const,
           tone: "violet" as const,
         },
         {
-          label: "Okunmamis mesaj",
+          label: "Okunmamış mesaj",
           value: String(summary.unreadMessages),
           meta: `Genel tamamlama %${summary.overallCompletionPercent}`,
           icon: "messages" as const,
@@ -76,35 +77,47 @@ export default async function DashboardPage() {
         },
       ]
     : [
-        { label: "Toplam ogrenci", value: "-", meta: "API baglantisi bekleniyor", icon: "students" as const, tone: "teal" as const },
-        { label: "Aktif ders", value: "-", meta: "API baglantisi bekleniyor", icon: "lessons" as const, tone: "sky" as const },
-        { label: "Bugun tamamlanan gorev", value: "-", meta: "API baglantisi bekleniyor", icon: "tasks" as const, tone: "amber" as const },
-        { label: "Gunluk toplam calisma", value: "-", meta: "API baglantisi bekleniyor", icon: "focus" as const, tone: "violet" as const },
-        { label: "Okunmamis mesaj", value: "-", meta: "API baglantisi bekleniyor", icon: "messages" as const, tone: "rose" as const },
+        { label: "Toplam öğrenci", value: "-", meta: "Veri bağlantısı bekleniyor", icon: "students" as const, tone: "teal" as const },
+        { label: "Aktif ders", value: "-", meta: "Veri bağlantısı bekleniyor", icon: "lessons" as const, tone: "sky" as const },
+        { label: "Tamamlanan görev", value: "-", meta: "Veri bağlantısı bekleniyor", icon: "tasks" as const, tone: "amber" as const },
+        { label: "Günlük odak", value: "-", meta: "Veri bağlantısı bekleniyor", icon: "focus" as const, tone: "violet" as const },
+        { label: "Okunmamış mesaj", value: "-", meta: "Veri bağlantısı bekleniyor", icon: "messages" as const, tone: "rose" as const },
       ];
 
   return (
     <AppShell
       user={currentUser}
       eyebrow="Koç paneli"
-      title="Bugunku operasyon gorunumu"
+      title="Bugünün genel görünümü"
       actions={[
-        { label: "Yeni ogrenci", href: "/students/new", icon: "plus" },
-        { label: "Haftalik plan", href: "/plans", icon: "plans" },
+        { label: "Yeni öğrenci", href: "/students/new", icon: "plus" },
+        { label: "Haftalık plan", href: "/plans", icon: "plans" },
         { label: "Deneme ekle", href: "/exams", icon: "exams" },
       ]}
     >
-      <section className="dashboard-spotlight">
+      <section className="dashboard-overview">
+        <div className="stats-grid stats-grid--overview">
+          {dashboardStats.slice(0, 4).map((stat) => (
+            <StatCard key={stat.label} {...stat} />
+          ))}
+        </div>
+
         <article className="dashboard-spotlight__hero">
+          <div className="dashboard-avatar-stack" aria-label="Aktif öğrenci örnekleri">
+            <span>AY</span>
+            <span>MK</span>
+            <span>SE</span>
+            <span>+{Math.max((summary?.totalStudents ?? 3) - 3, 0)}</span>
+          </div>
           <span className="dashboard-spotlight__eyebrow">
             <AppIcon name="spark" />
-            Gunun ritmi
+            Koçluk merkezi
           </span>
-          <h2>Panel daha canli, daha dikkat cekici ve operasyonu daha net gosterecek sekilde yenilendi.</h2>
+          <h2>Her öğrencinin gelişimi tek merkezde.</h2>
           <p>
             {summary
-              ? `${summary.totalStudents} ogrenci, ${summary.completedTasksToday} tamamlanan gorev ve ${summary.unreadMessages} bekleyen mesaj ile gunun nabzi tek bakista gorunuyor.`
-              : "Canli veri baglandiginda koçluk operasyonunun ritmi burada toplanir."}
+              ? `${summary.totalStudents} öğrencinin plan, görev, odak ve iletişim sürecini aynı çalışma alanından yönetin.`
+              : "Plan, görev, odak ve iletişim sürecini aynı çalışma alanından yönetin."}
           </p>
           <div className="dashboard-spotlight__metrics">
             <div className="dashboard-spotlight__metric">
@@ -112,38 +125,23 @@ export default async function DashboardPage() {
               <strong>%{summary?.overallCompletionPercent ?? "-"}</strong>
             </div>
             <div className="dashboard-spotlight__metric">
-              <span>Yaklasan gorusme</span>
-              <strong>{summary?.upcomingMeetings ?? 0}</strong>
+              <span>Bekleyen mesaj</span>
+              <strong>{summary?.unreadMessages ?? 0}</strong>
             </div>
             <div className="dashboard-spotlight__metric">
-              <span>Bugunku odak</span>
-              <strong>{summary ? formatMinutes(summary.dailyStudyMinutes) : "-"}</strong>
+              <span>Yaklaşan görüşme</span>
+              <strong>{summary?.upcomingMeetings ?? 0}</strong>
             </div>
           </div>
+          <div className="dashboard-spotlight__actions">
+            <Link className="primary-button" href="/students">
+              Öğrencileri görüntüle
+            </Link>
+            <Link className="secondary-button" href="/plans">
+              Haftalık planı aç
+            </Link>
+          </div>
         </article>
-
-        <div className="dashboard-spotlight__aside">
-          <div className="spotlight-mini-card spotlight-mini-card--teal">
-            <span className="spotlight-mini-card__icon">
-              <AppIcon name="chart" />
-            </span>
-            <strong>Canli grafikler</strong>
-            <span>Veri artik daha enerjik ve daha hizli okunuyor.</span>
-          </div>
-          <div className="spotlight-mini-card spotlight-mini-card--violet">
-            <span className="spotlight-mini-card__icon">
-              <AppIcon name="focus" />
-            </span>
-            <strong>Odak akisi</strong>
-            <span>Pomodoro, gorev ve mesaj verisi ayni gorsel dilde bulusuyor.</span>
-          </div>
-        </div>
-      </section>
-
-      <section className="stats-grid">
-        {dashboardStats.map((stat) => (
-          <StatCard key={stat.label} {...stat} />
-        ))}
       </section>
 
       <section className="two-column">

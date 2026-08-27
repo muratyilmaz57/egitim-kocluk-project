@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import type { NotificationPayload } from "@web/lib/api";
+import { AppIcon } from "@web/components/ui/app-icon";
 
 type NotificationMenuProps = {
   notifications: NotificationPayload | null;
@@ -63,23 +64,26 @@ export function NotificationMenu({ notifications }: NotificationMenuProps) {
   return (
     <div className="notification-menu">
       <button
-        className="chip-button chip-button--with-badge"
+        className="topbar__icon-button chip-button--with-badge"
         type="button"
+        aria-label={unreadCount ? `${unreadCount} okunmamış bildirim` : "Bildirimler"}
+        aria-expanded={isOpen}
+        aria-controls="notification-panel"
         onClick={() => setIsOpen((current) => !current)}
       >
-        Bildirimler
+        <AppIcon name="notifications" />
         {unreadCount ? <span className="chip-button__badge">{unreadCount}</span> : null}
       </button>
       {isOpen ? (
-        <div className="notification-panel">
+        <div className="notification-panel" id="notification-panel" role="region" aria-label="Bildirim merkezi">
           <div className="notification-panel__header">
             <div>
               <strong>Bildirim merkezi</strong>
-              <span>{unreadCount} okunmamis</span>
+              <span>{unreadCount} okunmamış</span>
             </div>
             <div className="notification-panel__actions">
               <Link className="secondary-button inline-button" href="/notifications">
-                Tumu
+                Tümü
               </Link>
               {unreadCount ? (
                 <button
@@ -107,7 +111,7 @@ export function NotificationMenu({ notifications }: NotificationMenuProps) {
                   </div>
                   <div className="notification-item__actions">
                     <Link className="secondary-button inline-button" href={item.href}>
-                      Ac
+                      Aç
                     </Link>
                     {!item.isRead ? (
                       <button
@@ -126,7 +130,7 @@ export function NotificationMenu({ notifications }: NotificationMenuProps) {
               <div className="notification-item">
                 <div className="notification-item__meta">
                   <strong>Bildirim yok</strong>
-                  <span>Yeni operasyon olaylari burada listelenecek.</span>
+                  <span>Yeni hareketler burada listelenecek.</span>
                 </div>
               </div>
             )}

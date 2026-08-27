@@ -21,7 +21,7 @@ export function StatCard({
         <span className="stat-card__icon">
           <AppIcon name={icon} />
         </span>
-        <span className="stat-card__tag">Canli</span>
+        <span className="stat-card__tag">Güncel</span>
       </div>
       <span className="stat-card__label">{label}</span>
       <strong className="stat-card__value">{value}</strong>

@@ -21,7 +21,9 @@ export type AppIconName =
   | "chart"
   | "target"
   | "focus"
-  | "shield";
+  | "shield"
+  | "menu"
+  | "close";
 
 type AppIconProps = {
   name: AppIconName;
@@ -47,6 +49,19 @@ export function AppIcon({ name, className, ...props }: AppIconProps) {
 }
 
 const iconPaths: Record<AppIconName, ReactNode> = {
+  menu: (
+    <>
+      <path d="M4 7h16" />
+      <path d="M4 12h16" />
+      <path d="M4 17h16" />
+    </>
+  ),
+  close: (
+    <>
+      <path d="m6 6 12 12" />
+      <path d="m18 6-12 12" />
+    </>
+  ),
   dashboard: (
     <>
       <rect x="3" y="3" width="7" height="7" rx="2" />

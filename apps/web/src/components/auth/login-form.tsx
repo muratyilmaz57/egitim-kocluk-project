@@ -106,7 +106,14 @@ export function LoginForm() {
     >
       <div className="auth-field">
         <label htmlFor="email">E-posta</label>
-        <input id="email" name="email" type="email" defaultValue="coach@kocluk.local" required />
+        <input
+          id="email"
+          name="email"
+          type="email"
+          autoComplete="email"
+          defaultValue="coach@kocluk.local"
+          required
+        />
       </div>
 
       <div className="auth-field">
@@ -115,6 +122,7 @@ export function LoginForm() {
           id="password"
           name="password"
           type="password"
+          autoComplete="current-password"
           defaultValue="Demo1234!"
           required
         />
@@ -125,16 +133,23 @@ export function LoginForm() {
           <label htmlFor="captchaAnswer">
             Captcha: {captcha?.question ?? "yukleniyor..."}
           </label>
-          <input id="captchaAnswer" name="captchaAnswer" inputMode="numeric" required />
+          <input id="captchaAnswer" name="captchaAnswer" inputMode="numeric" autoComplete="off" required />
         </div>
       ) : (
         <div className="auth-field">
           <label htmlFor="mfaCode">MFA kodu</label>
-          <input id="mfaCode" name="mfaCode" inputMode="numeric" placeholder="6 haneli kod" required />
+          <input
+            id="mfaCode"
+            name="mfaCode"
+            inputMode="numeric"
+            autoComplete="one-time-code"
+            placeholder="6 haneli kod"
+            required
+          />
         </div>
       )}
 
-      {error ? <div className="auth-error">{error}</div> : null}
+      {error ? <div className="auth-error" role="alert">{error}</div> : null}
 
       {mfaRequired ? (
         <div className="auth-hint">
