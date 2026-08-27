@@ -69,25 +69,34 @@ function getEnv(name, fallback) {
 }
 
 function run(cmd, args, options = {}) {
-  console.log(`$ ${cmd} ${args.join(" ")}`);
-  return execFileSync(cmd, args, {
-    cwd: options.cwd || projectRoot,
-    stdio: options.stdio || "inherit",
-    env: {
-      ...process.env,
-      ...(options.env || {}),
-    },
-  });
+  console.log(options.logLabel || `$ ${cmd} ${args.join(" ")}`);
+  try {
+    return execFileSync(cmd, args, {
+      cwd: options.cwd || projectRoot,
+      stdio: options.stdio || "inherit",
+      env: {
+        ...process.env,
+        ...(options.env || {}),
+      },
+    });
+  } catch (error) {
+    if (options.sanitizeErrors) {
+      throw new Error(options.errorMessage || `${cmd} command failed`);
+    }
+    throw error;
+  }
 }
 
 function runJsonCurl(args) {
-  const output = execFileSync("curl", args, {
-    cwd: projectRoot,
-    env: process.env,
-    stdio: ["ignore", "pipe", "pipe"],
-  }).toString("utf8");
-
-  return output;
+  try {
+    return execFileSync("curl", args, {
+      cwd: projectRoot,
+      env: process.env,
+      stdio: ["ignore", "pipe", "pipe"],
+    }).toString("utf8");
+  } catch {
+    throw new Error("Plesk API request failed");
+  }
 }
 
 function resolveConfig() {
@@ -216,7 +225,11 @@ function ftpUpload(host, user, pass, localFile, remoteName) {
     "-T",
     localFile,
     `ftp://${host}/${remoteName}`,
-  ]);
+  ], {
+    logLabel: `$ curl [FTP credentials redacted] upload ${remoteName}`,
+    sanitizeErrors: true,
+    errorMessage: `FTP upload failed for ${remoteName}`,
+  });
 }
 
 function ftpDelete(host, user, pass, remoteName) {
@@ -228,7 +241,11 @@ function ftpDelete(host, user, pass, remoteName) {
     "-Q",
     `DELE ${remoteName}`,
     `ftp://${host}/`,
-  ]);
+  ], {
+    logLabel: `$ curl [FTP credentials redacted] delete ${remoteName}`,
+    sanitizeErrors: true,
+    errorMessage: `FTP cleanup failed for ${remoteName}`,
+  });
 }
 
 function enablePhpExtractor(config) {
