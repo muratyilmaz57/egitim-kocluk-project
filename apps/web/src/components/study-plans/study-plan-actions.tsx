@@ -15,6 +15,7 @@ function toDateInputValue(value: string) {
 
 export function StudyPlanActions({ plan, students }: StudyPlanActionsProps) {
   const router = useRouter();
+  const [isOpen, setIsOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
@@ -44,6 +45,7 @@ export function StudyPlanActions({ plan, students }: StudyPlanActionsProps) {
     }
 
     startTransition(() => {
+      setIsOpen(false);
       router.refresh();
     });
   }
@@ -61,15 +63,30 @@ export function StudyPlanActions({ plan, students }: StudyPlanActionsProps) {
     }
 
     startTransition(() => {
+      setIsOpen(false);
       router.refresh();
     });
   }
 
   return (
-    <details className="inline-editor">
-      <summary className="secondary-button inline-button">Duzenle</summary>
+    <>
+      <button className="secondary-button inline-button" type="button" onClick={() => setIsOpen(true)}>
+        Düzenle
+      </button>
+      {isOpen ? (
+      <div className="modal-shell" role="dialog" aria-modal="true" aria-labelledby={`plan-edit-title-${plan.id}`}>
+      <button className="modal-backdrop plan-edit-backdrop" type="button" aria-label="Kapat" onClick={() => setIsOpen(false)} />
+      <div className="modal-card plan-edit-modal">
+        <div className="modal-card__header">
+          <div>
+            <h2 id={`plan-edit-title-${plan.id}`}>Planı düzenle</h2>
+            <p>Plan bilgilerini güncelleyin; mevcut görevler korunur.</p>
+          </div>
+          <button className="modal-card__close" type="button" aria-label="Kapat" onClick={() => setIsOpen(false)}>×</button>
+        </div>
+        <div className="modal-card__body">
       <form
-        className="inline-editor__form"
+        className="student-form plan-edit-form"
         onSubmit={(event) => {
           event.preventDefault();
           void submitPatch(new FormData(event.currentTarget));
@@ -121,6 +138,10 @@ export function StudyPlanActions({ plan, students }: StudyPlanActionsProps) {
         </div>
         {error ? <span className="inline-error">{error}</span> : null}
       </form>
-    </details>
+        </div>
+      </div>
+      </div>
+      ) : null}
+    </>
   );
 }
