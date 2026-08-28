@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
+import { GradeLevelSelect } from "@web/components/ui/grade-level-select";
 
 export function StudentCreateForm() {
   const router = useRouter();
@@ -69,7 +70,7 @@ export function StudentCreateForm() {
         </label>
         <label className="auth-field">
           <span>Sinif</span>
-          <input name="gradeLevel" placeholder="8. sinif" required />
+          <GradeLevelSelect defaultValue="8. sinif" required />
         </label>
         <label className="auth-field">
           <span>Varsayılan avatar</span>
