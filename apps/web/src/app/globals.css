@@ -4596,3 +4596,34 @@ textarea { min-height: 76px; }
   .task-composer__section .student-form__grid { grid-template-columns: 1fr; }
   .task-date-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 }
+
+/* Compact monthly planner and copy/paste interaction */
+.planner-view-switch { display: inline-flex; gap: 2px; padding: 2px; border: 1px solid var(--line); border-radius: 7px; background: #f5f7fa; }
+.planner-view-switch button { min-height: 28px; padding: 3px 9px; border: 0; border-radius: 5px; background: transparent; color: #78829d; cursor: pointer; font-size: .68rem; font-weight: 650; }
+.planner-view-switch button.is-active { background: #fff; color: #1b84ff; box-shadow: 0 1px 3px rgba(16,24,40,.08); }
+.planner-month-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); border: 1px solid var(--line); border-radius: 9px; overflow: hidden; }
+.planner-month-grid .planner-day { min-width: 0; min-height: 118px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.planner-month-grid .planner-day:nth-child(7n) { border-right: 0; }
+.planner-month-grid .planner-day:nth-last-child(-n + 7) { border-bottom: 0; }
+.planner-month-grid .planner-day__header { min-height: 34px; padding: 5px 7px; }
+.planner-month-grid .planner-day__header strong { font-size: .66rem; }
+.planner-month-grid .planner-day__header span { font-size: .62rem; }
+.planner-month-grid .planner-day__add { width: 26px; height: 26px; min-height: 26px; }
+.planner-month-grid .planner-day__body { min-height: 82px; padding: 5px; gap: 4px; }
+.planner-month-grid .planner-task-card { padding: 6px; }
+.planner-month-grid .planner-task-card__top strong { max-width: 12ch; overflow: hidden; font-size: .68rem; text-overflow: ellipsis; white-space: nowrap; }
+.planner-month-grid .planner-task-card__top .badge { display: none; }
+.planner-month-grid .planner-task-card__stats { display: none; }
+.planner-day--outside { background: #f7f8fa; opacity: .58; }
+.planner-day--paste-ready { cursor: copy; background: #f0f8ff; box-shadow: inset 0 0 0 1px #1b84ff; }
+.planner-copy-banner { padding: 8px 10px; border: 1px solid #b8dcff; border-radius: 7px; background: #eef6ff; color: #056ee9; font-size: .72rem; font-weight: 650; }
+.planner-task-actions { display: flex; align-items: center; gap: 5px; margin-top: 5px; }
+.task-copy-button { min-height: 30px; padding: 4px 8px; border: 1px solid var(--line); border-radius: 6px; background: #fff; color: #4b5675; cursor: pointer; font-size: .67rem; font-weight: 650; }
+.task-copy-button:hover,
+.task-copy-button--active { border-color: #1b84ff; background: #eef6ff; color: #056ee9; }
+
+@media (max-width: 900px) {
+  .planner-month-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .planner-month-grid .planner-day,
+  .planner-month-grid .planner-day:nth-child(7n) { border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+}
