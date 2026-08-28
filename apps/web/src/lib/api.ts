@@ -233,6 +233,7 @@ export type LessonRecord = {
   id: string;
   name: string;
   code: string;
+  gradeLevel: string | null;
   color: string | null;
   topicCount: number;
   topics: Array<{
