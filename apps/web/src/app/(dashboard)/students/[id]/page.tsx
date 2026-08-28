@@ -1,6 +1,7 @@
 import { AppShell } from "@web/components/layout/app-shell";
 import { SectionCard } from "@web/components/dashboard/section-card";
 import { StudentActions } from "@web/components/students/student-actions";
+import { StudentAvatarEditor } from "@web/components/students/student-avatar-editor";
 import { StudentProfileHeader } from "@web/components/students/student-profile-header";
 import { formatDate, formatMinutes, formatTaskStatus } from "@web/lib/api";
 import { getAuthorizedStudentPage } from "@web/lib/student-page";
@@ -55,6 +56,10 @@ export default async function StudentDetailPage({
       }
     >
       <StudentProfileHeader currentUser={currentUser} student={student} activeTab="general" />
+
+      <SectionCard title="Profil görseli" subtitle="Kendi fotoğrafını yükle veya varsayılan avatar seç">
+        <StudentAvatarEditor student={student} />
+      </SectionCard>
 
       {currentUser.role !== "student" ? (
         <SectionCard title="Ogrenci ayarlari" subtitle="Profil bilgilerini guncelle veya arsivden kaldir">
