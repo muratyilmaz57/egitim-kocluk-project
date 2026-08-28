@@ -24,7 +24,6 @@ export function TaskActions({ task, lessons = [] }: TaskActionsProps) {
   const [error, setError] = useState<string | null>(null);
   const [selectedLessonId, setSelectedLessonId] = useState<string>(task.lessonId ?? "");
   const [selectedTopicId, setSelectedTopicId] = useState<string>(task.topicId ?? "");
-  const [copyDates, setCopyDates] = useState<string[]>([""]);
   const [isPending, startTransition] = useTransition();
 
   const lessonTopics = lessons.find((lesson) => lesson.id === selectedLessonId)?.topics ?? [];
@@ -116,43 +115,6 @@ export function TaskActions({ task, lessons = [] }: TaskActionsProps) {
     });
   }
 
-  async function copyTask() {
-    const dates = copyDates.filter(Boolean);
-    if (!dates.length) {
-      setError("Kopyalanacak en az bir gün seçin.");
-      return;
-    }
-    setError(null);
-    const sourceTime = task.dueAt ? new Date(task.dueAt) : new Date();
-    const time = `${String(sourceTime.getHours()).padStart(2, "0")}:${String(sourceTime.getMinutes()).padStart(2, "0")}`;
-
-    for (const date of dates) {
-      const response = await fetch("/api/tasks", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({
-          studentId: Number(task.student.id),
-          lessonId: task.lessonId ? Number(task.lessonId) : undefined,
-          topicId: task.topicId ? Number(task.topicId) : undefined,
-          title: task.title,
-          description: task.description ?? "",
-          taskType: task.taskType,
-          targetQuestionCount: task.targetQuestionCount,
-          targetMinutes: task.targetMinutes,
-          priority: task.priority,
-          dueAt: new Date(`${date}T${time}:00`).toISOString(),
-        }),
-      });
-      if (!response.ok) {
-        const payload = await response.json().catch(() => null);
-        setError(payload?.message ?? "Görev kopyalanamadı.");
-        return;
-      }
-    }
-
-    startTransition(() => router.refresh());
-  }
-
   return (
     <details className="inline-editor">
       <summary className="secondary-button inline-button">Duzenle</summary>
@@ -233,27 +195,6 @@ export function TaskActions({ task, lessons = [] }: TaskActionsProps) {
           />
         </div>
         <input name="dueAt" type="datetime-local" defaultValue={toDateTimeLocalValue(task.dueAt)} />
-        <div className="task-copy-panel">
-          <strong>Başka günlere kopyala</strong>
-          <span>Aynı görevi, kaynakları ve saatini seçtiğiniz günlere ekler.</span>
-          {copyDates.map((date, index) => (
-            <input
-              key={index}
-              aria-label={`Kopyalama günü ${index + 1}`}
-              type="date"
-              value={date}
-              onChange={(event) => setCopyDates((current) => current.map((item, itemIndex) => itemIndex === index ? event.target.value : item))}
-            />
-          ))}
-          <div className="inline-actions">
-            <button className="secondary-button inline-button" type="button" onClick={() => setCopyDates((current) => [...current, ""])}>
-              + Gün ekle
-            </button>
-            <button className="primary-button inline-button" type="button" disabled={isPending} onClick={() => void copyTask()}>
-              Seçili günlere kopyala
-            </button>
-          </div>
-        </div>
         <div className="inline-actions">
           <button className="primary-button inline-button" type="submit" disabled={isPending}>
             Kaydet
