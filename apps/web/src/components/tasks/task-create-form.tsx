@@ -153,16 +153,20 @@ export function TaskCreateForm({
       resourceFileName = uploadPayload.fileName;
     }
 
+    const resourceUrl = String(formData.get("resourceUrl") ?? "").trim();
+    const descriptionParts = [String(formData.get("description") ?? "").trim()];
+    if (resourceUrl) descriptionParts.push(`Kaynak bağlantısı: ${resourceUrl}`);
+    if (resourceFilePath) {
+      descriptionParts.push(`Kaynak dosyası: ${resourceFileName ?? "Dosya"} | ${resourceFilePath}`);
+    }
+
     const basePayload = {
       studentId: Number(formData.get("studentId")),
       lessonId: selectedLessonId ? Number(selectedLessonId) : undefined,
       topicId: selectedTopicId ? Number(selectedTopicId) : undefined,
       title: String(formData.get("title") ?? ""),
       taskType: String(formData.get("taskType") ?? "study"),
-      description: String(formData.get("description") ?? ""),
-      resourceUrl: String(formData.get("resourceUrl") ?? ""),
-      resourceFilePath,
-      resourceFileName,
+      description: descriptionParts.filter(Boolean).join("\n"),
       targetQuestionCount: Number(formData.get("targetQuestionCount") || 0),
       targetMinutes: Number(formData.get("targetMinutes") || 0),
       priority: String(formData.get("priority") ?? "medium"),
