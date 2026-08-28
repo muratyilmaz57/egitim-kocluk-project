@@ -46,6 +46,7 @@ export class LessonsService {
         id: lesson.id.toString(),
         name: lesson.name,
         code: lesson.code,
+        gradeLevel: lesson.gradeLevel,
         color: lesson.color,
         topicCount: lesson.topics.length,
         topics: lesson.topics.map((topic) => ({
@@ -73,6 +74,7 @@ export class LessonsService {
           coachId,
           name: dto.name.trim(),
           code,
+          gradeLevel: dto.gradeLevel,
           color: dto.color?.trim() || null,
           icon: dto.icon?.trim() || null,
           sortOrder: dto.sortOrder ?? 0,
@@ -95,6 +97,7 @@ export class LessonsService {
         id: lesson.id.toString(),
         name: lesson.name,
         code: lesson.code,
+        gradeLevel: lesson.gradeLevel,
       };
     } catch (error) {
       if (error instanceof BadRequestException || error instanceof ForbiddenException) {
@@ -206,6 +209,7 @@ export class LessonsService {
               name: lessonName,
               code: await this.ensureUniqueCode(row.lessonCode ?? lessonName, undefined),
               color: row.lessonColor?.trim() || null,
+              gradeLevel: row.gradeLevel?.trim() || null,
             },
           });
           createdLessons += 1;
