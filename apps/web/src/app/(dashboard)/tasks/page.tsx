@@ -101,12 +101,12 @@ export default async function TasksPage({
                         ? `${task.targetMinutes} dk`
                         : `${task.targetQuestionCount} soru`}
                     </span>
-                    {task.resourceUrl || task.resourceFilePath ? (
-                      <span className="task-resource-links">
-                        {task.resourceUrl ? <a href={task.resourceUrl} target="_blank" rel="noreferrer">Bağlantıyı aç</a> : null}
-                        {task.resourceFilePath ? <a href={task.resourceFilePath} target="_blank" rel="noreferrer">{task.resourceFileName ?? "Dosyayı aç"}</a> : null}
-                      </span>
-                    ) : null}
+                    {task.description?.split("\n").filter((line) => line.startsWith("Kaynak ")).map((line) => {
+                      const href = line.startsWith("Kaynak bağlantısı:")
+                        ? line.replace("Kaynak bağlantısı:", "").trim()
+                        : line.split(" | ").at(-1)?.trim();
+                      return href ? <span className="task-resource-links" key={line}><a href={href} target="_blank" rel="noreferrer">{line.startsWith("Kaynak bağlantısı:") ? "Bağlantıyı aç" : "Dosyayı aç"}</a></span> : null;
+                    })}
                   </div>
                   <div className="list-item__aside">
                     <span className="badge badge--warning">
