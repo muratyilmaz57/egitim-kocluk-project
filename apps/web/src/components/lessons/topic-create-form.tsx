@@ -3,21 +3,30 @@
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import type { LessonRecord } from "@web/lib/api";
+import { GradeLevelSelect } from "@web/components/ui/grade-level-select";
+import { lessonMatchesGrade } from "@web/lib/grade-levels";
 
 type TopicCreateFormProps = {
   lessons: LessonRecord[];
   defaultLessonId?: string | null;
   onSuccessRedirectTo?: string;
+  defaultGradeLevel?: string;
 };
 
 export function TopicCreateForm({
   lessons,
   defaultLessonId,
   onSuccessRedirectTo,
+  defaultGradeLevel = "8. sinif",
 }: TopicCreateFormProps) {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+  const [gradeLevel, setGradeLevel] = useState(defaultGradeLevel);
+  const filteredLessons = lessons.filter((lesson) => lessonMatchesGrade(lesson, gradeLevel));
+  const selectedLessonId = filteredLessons.some((lesson) => lesson.id === defaultLessonId)
+    ? defaultLessonId ?? ""
+    : filteredLessons[0]?.id ?? "";
 
   async function submitForm(formData: FormData) {
     setError(null);
@@ -66,9 +75,13 @@ export function TopicCreateForm({
     >
       <div className="student-form__grid">
         <label className="auth-field">
+          <span>Sınıf</span>
+          <GradeLevelSelect value={gradeLevel} onChange={setGradeLevel} required />
+        </label>
+        <label className="auth-field">
           <span>Ders</span>
-          <select name="lessonId" defaultValue={defaultLessonId ?? lessons[0]?.id}>
-            {lessons.map((lesson) => (
+          <select key={gradeLevel} name="lessonId" defaultValue={selectedLessonId} required>
+            {filteredLessons.map((lesson) => (
               <option key={lesson.id} value={lesson.id}>
                 {lesson.name}
               </option>
@@ -79,10 +92,7 @@ export function TopicCreateForm({
           <span>Konu Adi</span>
           <input name="name" placeholder="Problemler" required />
         </label>
-        <label className="auth-field">
-          <span>Seviye</span>
-          <input name="gradeLevel" placeholder="11. sinif" />
-        </label>
+        <input name="gradeLevel" type="hidden" value={gradeLevel} />
         <label className="auth-field">
           <span>Zorluk</span>
           <input name="difficultyLevel" type="number" min="1" max="5" placeholder="3" />
