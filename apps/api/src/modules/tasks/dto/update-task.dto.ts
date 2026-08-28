@@ -12,21 +12,6 @@ export class UpdateTaskDto {
   description?: string;
 
   @IsOptional()
-  @IsString()
-  @MaxLength(500)
-  resourceUrl?: string;
-
-  @IsOptional()
-  @IsString()
-  @MaxLength(500)
-  resourceFilePath?: string;
-
-  @IsOptional()
-  @IsString()
-  @MaxLength(255)
-  resourceFileName?: string;
-
-  @IsOptional()
   @IsIn(["study", "question", "video", "exam", "reading"])
   taskType?: "study" | "question" | "video" | "exam" | "reading";
 
