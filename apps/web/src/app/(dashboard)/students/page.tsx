@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { AppShell } from "@web/components/layout/app-shell";
 import { SectionCard } from "@web/components/dashboard/section-card";
+import { StudentAvatar } from "@web/components/students/student-avatar";
 import { formatStudentStatus, getCurrentUser, getStudents } from "@web/lib/api";
 
 function matches(value: string, query: string) {
@@ -87,12 +88,12 @@ export default async function StudentsPage({
           {filteredStudents.length ? (
             filteredStudents.map((student) => (
               <div className="list-item" key={student.id}>
-                <div className="list-item__meta">
-                  <strong>{student.fullName}</strong>
-                  <span>
-                    {student.gradeLevel} | {student.targetExam ?? "Hedef yok"} | genel ilerleme %
-                    {student.overallProgress}
-                  </span>
+                <div className="student-list-person">
+                  <StudentAvatar name={student.fullName} photoUrl={student.photoUrl} size="sm" />
+                  <div className="list-item__meta">
+                    <strong>{student.fullName}</strong>
+                    <span>{student.gradeLevel} · {student.targetExam ?? "Hedef yok"} · %{student.overallProgress}</span>
+                  </div>
                 </div>
                 <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
                   <span className="badge badge--success">
