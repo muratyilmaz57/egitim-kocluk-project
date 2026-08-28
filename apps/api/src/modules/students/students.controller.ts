@@ -32,7 +32,7 @@ export class StudentsController {
   }
 
   @Patch(":id")
-  @Roles("admin", "coach")
+  @Roles("admin", "coach", "student")
   update(
     @Param("id") id: string,
     @Body() dto: UpdateStudentDto,
