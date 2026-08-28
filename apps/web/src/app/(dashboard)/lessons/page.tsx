@@ -4,6 +4,7 @@ import { SectionCard } from "@web/components/dashboard/section-card";
 import { AppShell } from "@web/components/layout/app-shell";
 import { LessonCreateForm } from "@web/components/lessons/lesson-create-form";
 import { LessonImportForm } from "@web/components/lessons/lesson-import-form";
+import { LessonActions } from "@web/components/lessons/lesson-actions";
 import { TopicCreateForm } from "@web/components/lessons/topic-create-form";
 import { ModalFrame } from "@web/components/ui/modal-frame";
 import { getCurrentUser, getLessons } from "@web/lib/api";
@@ -70,13 +71,16 @@ export default async function LessonsPage({ searchParams }: LessonsPageProps) {
         </div>
         <div className="list">
           {filteredLessons.map((lesson) => (
-            <Link className="list-item" href={`/lessons?${baseQuery}&lessonId=${lesson.id}`} key={lesson.id}>
-              <div className="list-item__meta">
+            <div className="list-item" key={lesson.id}>
+              <Link className="list-item__meta lesson-card-link" href={`/lessons?${baseQuery}&lessonId=${lesson.id}`}>
                 <strong>{lesson.name}</strong>
                 <span>{lesson.topics.filter((topic) => topic.gradeLevel === gradeLevel).length} aktif konu</span>
+              </Link>
+              <div className="list-item__aside">
+                <span className="badge badge--success">{lesson.code}</span>
+                {currentUser.role !== "student" ? <LessonActions lesson={lesson} /> : null}
               </div>
-              <span className="badge badge--success">{lesson.code}</span>
-            </Link>
+            </div>
           ))}
           {!filteredLessons.length ? <div className="list-item"><div className="list-item__meta"><strong>Bu sınıfa ders eklenmemiş</strong><span>Yeni ders ekleyerek başlayabilirsiniz.</span></div></div> : null}
         </div>
