@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState, useTransition } from "react";
 import type { LessonRecord, StudentSummary } from "@web/lib/api";
 import { AppIcon } from "../ui/app-icon";
+import { gradeLevelLabel, lessonMatchesGrade } from "@web/lib/grade-levels";
 
 type TaskCreateFormProps = {
   students: StudentSummary[];
@@ -85,6 +86,7 @@ export function TaskCreateForm({
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [step, setStep] = useState(1);
+  const [selectedStudentId, setSelectedStudentId] = useState(defaultStudentId ?? students[0]?.id ?? "");
   const [selectedLessonId, setSelectedLessonId] = useState<string>("");
   const [selectedTopicId, setSelectedTopicId] = useState<string>("");
   const [weekStart, setWeekStart] = useState(() =>
@@ -113,8 +115,10 @@ export function TaskCreateForm({
     [weekStart],
   );
 
-  const lessonTopics =
-    lessons.find((lesson) => lesson.id === selectedLessonId)?.topics ?? [];
+  const selectedGradeLevel = students.find((student) => student.id === selectedStudentId)?.gradeLevel ?? "";
+  const filteredLessons = lessons.filter((lesson) => lessonMatchesGrade(lesson, selectedGradeLevel));
+  const lessonTopics = (filteredLessons.find((lesson) => lesson.id === selectedLessonId)?.topics ?? [])
+    .filter((topic) => topic.gradeLevel === selectedGradeLevel);
 
   useEffect(() => {
     if (!selectedLessonId) {
@@ -293,13 +297,17 @@ export function TaskCreateForm({
           <div className="student-form__grid">
             <label className="auth-field">
               <span>Ogrenci</span>
-              <select name="studentId" defaultValue={defaultStudentId ?? students[0]?.id}>
+              <select name="studentId" value={selectedStudentId} onChange={(event) => { setSelectedStudentId(event.target.value); setSelectedLessonId(""); setSelectedTopicId(""); }}>
                 {students.map((student) => (
                   <option key={student.id} value={student.id}>
                     {student.fullName}
                   </option>
                 ))}
               </select>
+            </label>
+            <label className="auth-field">
+              <span>Sınıf</span>
+              <input value={selectedGradeLevel ? gradeLevelLabel(selectedGradeLevel) : "Sınıf bilgisi yok"} readOnly />
             </label>
             <label className="auth-field">
               <span>Ders</span>
@@ -309,7 +317,7 @@ export function TaskCreateForm({
                 onChange={(event) => setSelectedLessonId(event.target.value)}
               >
                 <option value="">Ders seciniz</option>
-                {lessons.map((lesson) => (
+                {filteredLessons.map((lesson) => (
                   <option key={lesson.id} value={lesson.id}>
                     {lesson.name}
                   </option>
