@@ -4627,3 +4627,26 @@ textarea { min-height: 76px; }
   .planner-month-grid .planner-day,
   .planner-month-grid .planner-day:nth-child(7n) { border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); }
 }
+.filter-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-bottom: 0.85rem;
+}
+
+.filter-chip {
+  border: 1px solid var(--border-color, #dce3ef);
+  border-radius: 0.55rem;
+  color: var(--muted-color, #64748b);
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 0.4rem 0.7rem;
+  text-decoration: none;
+}
+
+.filter-chip:hover,
+.filter-chip--active {
+  background: #eef3ff;
+  border-color: #3158d6;
+  color: #2347b8;
+}
