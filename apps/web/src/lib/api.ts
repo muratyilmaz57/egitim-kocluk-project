@@ -138,6 +138,7 @@ export type StudentSummary = {
   userId?: string | null;
   fullName: string;
   gradeLevel: string;
+  photoUrl?: string | null;
   parentName?: string | null;
   targetExam: string | null;
   status: string;
