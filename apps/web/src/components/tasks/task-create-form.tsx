@@ -84,6 +84,7 @@ export function TaskCreateForm({
 }: TaskCreateFormProps) {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
+  const [step, setStep] = useState(1);
   const [selectedLessonId, setSelectedLessonId] = useState<string>("");
   const [selectedTopicId, setSelectedTopicId] = useState<string>("");
   const [weekStart, setWeekStart] = useState(() =>
@@ -133,6 +134,25 @@ export function TaskCreateForm({
       return;
     }
 
+    let resourceFilePath: string | undefined;
+    let resourceFileName: string | undefined;
+    const resourceFile = formData.get("resourceFile");
+    if (resourceFile instanceof File && resourceFile.size > 0) {
+      const uploadData = new FormData();
+      uploadData.set("file", resourceFile);
+      const uploadResponse = await fetch("/api/uploads/resources", {
+        method: "POST",
+        body: uploadData,
+      });
+      const uploadPayload = await uploadResponse.json().catch(() => null);
+      if (!uploadResponse.ok) {
+        setError(uploadPayload?.message ?? "Kaynak dosyası yüklenemedi.");
+        return;
+      }
+      resourceFilePath = uploadPayload.filePath;
+      resourceFileName = uploadPayload.fileName;
+    }
+
     const basePayload = {
       studentId: Number(formData.get("studentId")),
       lessonId: selectedLessonId ? Number(selectedLessonId) : undefined,
@@ -140,6 +160,9 @@ export function TaskCreateForm({
       title: String(formData.get("title") ?? ""),
       taskType: String(formData.get("taskType") ?? "study"),
       description: String(formData.get("description") ?? ""),
+      resourceUrl: String(formData.get("resourceUrl") ?? ""),
+      resourceFilePath,
+      resourceFileName,
       targetQuestionCount: Number(formData.get("targetQuestionCount") || 0),
       targetMinutes: Number(formData.get("targetMinutes") || 0),
       priority: String(formData.get("priority") ?? "medium"),
@@ -195,12 +218,25 @@ export function TaskCreateForm({
           <AppIcon name="tasks" />
         </div>
         <div>
-          <strong>Gorev Ekle</strong>
-          <p>{selectedDates.length} gune gorev eklenecek</p>
+          <strong>Görev Ekle</strong>
+          <p>3 kısa adım · {selectedDates.length} güne eklenecek</p>
         </div>
       </section>
 
-      <section className="task-date-picker">
+      <nav className="task-stepper" aria-label="Görev oluşturma adımları">
+        {["Ders ve Kaynak", "Görev Detayları", "Zaman ve Günler"].map((label, index) => (
+          <button
+            key={label}
+            className={step === index + 1 ? "task-step task-step--active" : "task-step"}
+            type="button"
+            onClick={() => setStep(index + 1)}
+          >
+            <span>{index + 1}</span>{label}
+          </button>
+        ))}
+      </nav>
+
+      <section className="task-date-picker" hidden={step !== 3}>
         <div className="task-date-picker__header">
           <div>
             <strong>Hangi gunlere eklenecek?</strong>
@@ -243,7 +279,7 @@ export function TaskCreateForm({
       </section>
 
       <div className="task-composer__grid">
-        <section className="task-composer__section">
+        <section className="task-composer__section" hidden={step !== 1}>
           <div className="task-composer__section-title">
             <span className="task-composer__section-icon task-composer__section-icon--lesson">
               <AppIcon name="lessons" />
@@ -292,10 +328,23 @@ export function TaskCreateForm({
                 ))}
               </select>
             </label>
+            <label className="auth-field" style={{ gridColumn: "1 / -1" }}>
+              <span>Kaynak bağlantısı</span>
+              <input name="resourceUrl" type="url" placeholder="https://youtube.com/..." />
+            </label>
+            <label className="auth-field" style={{ gridColumn: "1 / -1" }}>
+              <span>Kaynak dosyası</span>
+              <input
+                name="resourceFile"
+                type="file"
+                accept=".pdf,.doc,.docx,.ppt,.pptx,.txt,application/pdf"
+              />
+              <small>PDF, Word, PowerPoint veya metin dosyası · en fazla 10 MB</small>
+            </label>
           </div>
         </section>
 
-        <section className="task-composer__section">
+        <section className="task-composer__section" hidden={step !== 2}>
           <div className="task-composer__section-title">
             <span className="task-composer__section-icon task-composer__section-icon--task">
               <AppIcon name="spark" />
@@ -336,7 +385,7 @@ export function TaskCreateForm({
           </div>
         </section>
 
-        <section className="task-composer__section">
+        <section className="task-composer__section" hidden={step !== 3}>
           <div className="task-composer__section-title">
             <span className="task-composer__section-icon task-composer__section-icon--time">
               <AppIcon name="focus" />
@@ -368,9 +417,20 @@ export function TaskCreateForm({
             Iptal
           </button>
         ) : null}
-        <button className="primary-button auth-submit" type="submit" disabled={isPending}>
-          {isPending ? "Kaydediliyor..." : "Gorev Olustur"}
-        </button>
+        {step > 1 ? (
+          <button className="secondary-button" type="button" onClick={() => setStep(step - 1)}>
+            Geri
+          </button>
+        ) : null}
+        {step < 3 ? (
+          <button className="primary-button" type="button" onClick={() => setStep(step + 1)}>
+            Devam et
+          </button>
+        ) : (
+          <button className="primary-button auth-submit" type="submit" disabled={isPending}>
+            {isPending ? "Kaydediliyor..." : "Görevi Oluştur"}
+          </button>
+        )}
       </div>
     </form>
   );
