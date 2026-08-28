@@ -1,5 +1,5 @@
 import { ResourceType } from "@prisma/client";
-import { IsBoolean, IsEnum, IsInt, IsOptional, IsString, MaxLength, Min } from "class-validator";
+import { IsBoolean, IsEnum, IsIn, IsInt, IsOptional, IsString, MaxLength, Min } from "class-validator";
 
 export class CreateResourceDto {
   @IsOptional()
@@ -33,6 +33,7 @@ export class CreateResourceDto {
 
   @IsOptional()
   @IsString()
+  @IsIn(["8. sinif", "9. sinif", "10. sinif", "11. sinif", "12. sinif"])
   targetGradeLevel?: string;
 
   @IsOptional()
