@@ -55,9 +55,6 @@ export class TasksService {
         title: task.title,
         taskType: task.taskType,
         description: task.description,
-        resourceUrl: task.resourceUrl,
-        resourceFilePath: task.resourceFilePath,
-        resourceFileName: task.resourceFileName,
         targetQuestionCount: task.targetQuestionCount,
         targetMinutes: task.targetMinutes,
         priority: task.priority,
@@ -111,9 +108,6 @@ export class TasksService {
           title: dto.title,
           taskType: dto.taskType,
           description: dto.description,
-          resourceUrl: dto.resourceUrl || undefined,
-          resourceFilePath: dto.resourceFilePath || undefined,
-          resourceFileName: dto.resourceFileName || undefined,
           targetQuestionCount: dto.targetQuestionCount ?? 0,
           targetMinutes: dto.targetMinutes ?? 0,
           priority: dto.priority,
@@ -158,9 +152,6 @@ export class TasksService {
         status: task.status,
         progressPercent: task.progressPercent,
         dueAt: task.dueAt,
-        resourceUrl: task.resourceUrl,
-        resourceFilePath: task.resourceFilePath,
-        resourceFileName: task.resourceFileName,
         lessonId: task.lessonId?.toString() ?? null,
         topicId: task.topicId?.toString() ?? null,
         student: {
@@ -207,13 +198,6 @@ export class TasksService {
         data: {
           ...(dto.title ? { title: dto.title } : {}),
           ...(dto.description !== undefined ? { description: dto.description } : {}),
-          ...(dto.resourceUrl !== undefined ? { resourceUrl: dto.resourceUrl || null } : {}),
-          ...(dto.resourceFilePath !== undefined
-            ? { resourceFilePath: dto.resourceFilePath || null }
-            : {}),
-          ...(dto.resourceFileName !== undefined
-            ? { resourceFileName: dto.resourceFileName || null }
-            : {}),
           ...(dto.taskType ? { taskType: dto.taskType } : {}),
           ...(typeof dto.targetQuestionCount === "number"
             ? { targetQuestionCount: dto.targetQuestionCount }
@@ -279,9 +263,6 @@ export class TasksService {
         status: updated.status,
         progressPercent: updated.progressPercent,
         dueAt: updated.dueAt,
-        resourceUrl: updated.resourceUrl,
-        resourceFilePath: updated.resourceFilePath,
-        resourceFileName: updated.resourceFileName,
         lessonId: updated.lessonId?.toString() ?? null,
         topicId: updated.topicId?.toString() ?? null,
         student: {
