@@ -11,6 +11,20 @@ export function StudentCreateForm() {
   async function submitForm(formData: FormData) {
     setError(null);
 
+    let photoUrl = String(formData.get("defaultAvatar") ?? "/images/avatars/default-boy.svg");
+    const avatar = formData.get("avatar");
+    if (avatar instanceof File && avatar.size > 0) {
+      const uploadData = new FormData();
+      uploadData.set("file", avatar);
+      const uploadResponse = await fetch("/api/uploads/student-avatar", { method: "POST", body: uploadData });
+      const uploadPayload = await uploadResponse.json().catch(() => null);
+      if (!uploadResponse.ok) {
+        setError(uploadPayload?.message ?? "Profil görseli yüklenemedi.");
+        return;
+      }
+      photoUrl = uploadPayload.filePath;
+    }
+
     const response = await fetch("/api/students", {
       method: "POST",
       headers: {
@@ -19,6 +33,7 @@ export function StudentCreateForm() {
       body: JSON.stringify({
         fullName: String(formData.get("fullName") ?? ""),
         gradeLevel: String(formData.get("gradeLevel") ?? ""),
+        photoUrl,
         targetExam: String(formData.get("targetExam") ?? ""),
         parentName: String(formData.get("parentName") ?? ""),
         parentPhone: String(formData.get("parentPhone") ?? ""),
@@ -55,6 +70,17 @@ export function StudentCreateForm() {
         <label className="auth-field">
           <span>Sinif</span>
           <input name="gradeLevel" placeholder="8. sinif" required />
+        </label>
+        <label className="auth-field">
+          <span>Varsayılan avatar</span>
+          <select name="defaultAvatar" defaultValue="/images/avatars/default-boy.svg">
+            <option value="/images/avatars/default-boy.svg">Erkek öğrenci</option>
+            <option value="/images/avatars/default-girl.svg">Kız öğrenci</option>
+          </select>
+        </label>
+        <label className="auth-field">
+          <span>Profil fotoğrafı (isteğe bağlı)</span>
+          <input name="avatar" type="file" accept="image/jpeg,image/png,image/webp" />
         </label>
         <label className="auth-field">
           <span>Hedef Sinav</span>
