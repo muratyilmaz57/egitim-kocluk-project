@@ -71,12 +71,12 @@ export default async function PlansPage({
   const selectedStudentId =
     currentUser.role === "student"
       ? currentUser.studentProfileId ?? undefined
-      : rawStudentId ?? students[0]?.id;
+      : rawStudentId;
   const weekOffset = rawWeekOffset ? Number.parseInt(rawWeekOffset, 10) || 0 : 0;
 
   const [plans, tasks, lessons] = await Promise.all([
-    getStudyPlansForStudent(selectedStudentId),
-    getTasks(selectedStudentId),
+    selectedStudentId ? getStudyPlansForStudent(selectedStudentId) : Promise.resolve([]),
+    selectedStudentId ? getTasks(selectedStudentId) : Promise.resolve([]),
     currentUser.role === "student" ? Promise.resolve([]) : getLessons(),
   ]);
 
@@ -132,7 +132,7 @@ export default async function PlansPage({
           <TaskCreateForm
             students={students}
             lessons={lessons}
-            defaultStudentId={selectedStudentId ?? students[0]?.id ?? null}
+            defaultStudentId={selectedStudentId ?? null}
             defaultDueAt={`${(dueDate ?? weekStart)}T17:00:00.000Z`}
             onSuccessRedirectTo={closeHref}
           />
@@ -147,7 +147,7 @@ export default async function PlansPage({
         >
           <StudyPlanCreateForm
             students={students}
-            defaultStudentId={selectedStudentId ?? students[0]?.id ?? null}
+            defaultStudentId={selectedStudentId ?? null}
             defaultStartDate={weekStart}
             defaultEndDate={weekEnd}
             onSuccessRedirectTo={closeHref}
