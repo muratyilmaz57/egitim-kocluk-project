@@ -10,6 +10,11 @@ import {
 export class UpdateStudentDto {
   @IsOptional()
   @IsString()
+  @MaxLength(255)
+  photoUrl?: string;
+
+  @IsOptional()
+  @IsString()
   @MaxLength(150)
   fullName?: string;
 
