@@ -2,6 +2,7 @@ import { AppShell } from "@web/components/layout/app-shell";
 import { SectionCard } from "@web/components/dashboard/section-card";
 import { StudentProfileHeader } from "@web/components/students/student-profile-header";
 import { StudyPlanCreateForm } from "@web/components/study-plans/study-plan-create-form";
+import { StudyPlanActions } from "@web/components/study-plans/study-plan-actions";
 import { ModalFrame } from "@web/components/ui/modal-frame";
 import { formatDate, formatMinutes, getStudyPlansForStudent } from "@web/lib/api";
 import { getAuthorizedStudentPage } from "@web/lib/student-page";
@@ -62,6 +63,9 @@ export default async function StudentPlansPage({
                   <span className="badge badge--warning">
                     {plan.taskCount} gorev | {formatMinutes(plan.totalTargetMinutes)}
                   </span>
+                  {currentUser.role !== "student" ? (
+                    <StudyPlanActions plan={plan} students={[student]} />
+                  ) : null}
                 </div>
               </div>
             ))
