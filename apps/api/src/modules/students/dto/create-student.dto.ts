@@ -2,12 +2,15 @@ import {
   IsDateString,
   IsEmail,
   IsInt,
+  IsIn,
   IsNotEmpty,
   IsOptional,
   IsString,
   MaxLength,
   Min,
 } from "class-validator";
+
+const GRADE_LEVELS = ["8. sinif", "9. sinif", "10. sinif", "11. sinif", "12. sinif"];
 
 export class CreateStudentDto {
   @IsOptional()
@@ -22,6 +25,7 @@ export class CreateStudentDto {
 
   @IsString()
   @IsNotEmpty()
+  @IsIn(GRADE_LEVELS)
   @MaxLength(30)
   gradeLevel!: string;
 
