@@ -258,3 +258,98 @@ export class LessonsService {
             data: {
               coachId,
               name: lessonName,
+              code: await this.ensureUniqueCode(row.lessonCode ?? lessonName, undefined),
+              color: row.lessonColor?.trim() || null,
+              gradeLevel: row.gradeLevel?.trim() || null,
+            },
+          });
+          createdLessons += 1;
+        }
+
+        const topicName = row.topicName?.trim();
+        if (!topicName) {
+          continue;
+        }
+
+        const existingTopic = await this.prisma.topic.findFirst({
+          where: {
+            lessonId: lesson.id,
+            name: topicName,
+          },
+        });
+
+        if (existingTopic) {
+          continue;
+        }
+
+        await this.prisma.topic.create({
+          data: {
+            lessonId: lesson.id,
+            name: topicName,
+            description: row.description?.trim() || null,
+            gradeLevel: row.gradeLevel?.trim() || null,
+            difficultyLevel: row.difficultyLevel ?? null,
+            estimatedMinutes: row.estimatedMinutes ?? null,
+          },
+        });
+        createdTopics += 1;
+      }
+
+      await this.auditLogsService.log({
+        actorUserId: actor.id,
+        action: "lesson.import",
+        entityType: "lesson",
+        description: "Ders ve konu iceri aktarma tamamlandi.",
+        metadata: {
+          createdLessons,
+          createdTopics,
+          rowCount: dto.rows.length,
+        },
+      });
+
+      return {
+        success: true,
+        createdLessons,
+        createdTopics,
+        rowCount: dto.rows.length,
+      };
+    } catch (error) {
+      if (error instanceof BadRequestException || error instanceof ForbiddenException) {
+        throw error;
+      }
+
+      throw new ServiceUnavailableException("Lesson import failed.", {
+        cause: error,
+      });
+    }
+  }
+
+  private async ensureUniqueCode(source: string, currentLessonId?: bigint) {
+    const normalized = source
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-zA-Z0-9]+/g, "_")
+      .replace(/^_+|_+$/g, "")
+      .toUpperCase()
+      .slice(0, 24) || "LESSON";
+
+    let candidate = normalized;
+    let suffix = 1;
+
+    for (;;) {
+      const existing = await this.prisma.lesson.findFirst({
+        where: {
+          code: candidate,
+          ...(currentLessonId ? { NOT: { id: currentLessonId } } : {}),
+        },
+      });
+
+      if (!existing) {
+        return candidate;
+      }
+
+      suffix += 1;
+      candidate = `${normalized.slice(0, 24 - String(suffix).length)}${suffix}`;
+    }
+  }
+}
