@@ -1,21 +1,13 @@
 import Link from "next/link";
 import type { SessionUser, StudentDetail } from "@web/lib/api";
 import { formatDate, formatStudentStatus } from "@web/lib/api";
+import { StudentAvatar } from "./student-avatar";
 
 type StudentProfileHeaderProps = {
   currentUser: SessionUser;
   student: StudentDetail;
   activeTab: "general" | "tasks" | "plans" | "topics" | "exams" | "pomodoro" | "messages";
 };
-
-function initials(name: string) {
-  return name
-    .split(" ")
-    .map((part) => part[0] ?? "")
-    .join("")
-    .slice(0, 2)
-    .toUpperCase();
-}
 
 export function StudentProfileHeader({
   currentUser,
@@ -37,7 +29,7 @@ export function StudentProfileHeader({
     <>
       <section className="section-card">
         <div className="student-hero">
-          <div className="avatar">{initials(student.fullName)}</div>
+          <StudentAvatar name={student.fullName} photoUrl={student.photoUrl} size="lg" />
           <div className="hero-meta">
             <h2 style={{ margin: 0 }}>
               {student.gradeLevel} | {student.targetExam ?? "Hedef tanimsiz"}
