@@ -3,6 +3,7 @@ import { SectionCard } from "@web/components/dashboard/section-card";
 import { AppShell } from "@web/components/layout/app-shell";
 import { NoteActions } from "@web/components/notes/note-actions";
 import { NoteCreateForm } from "@web/components/notes/note-create-form";
+import { AgendaCalendar } from "@web/components/notes/agenda-calendar";
 import { ModalFrame } from "@web/components/ui/modal-frame";
 import { formatDate, getCurrentUser, getNotes, getStudents } from "@web/lib/api";
 
@@ -40,6 +41,8 @@ export default async function AgendaPage({ searchParams }: AgendaPageProps) {
             ]
       }
     >
+      {currentUser.role !== "student" ? <AgendaCalendar notes={notes} /> : null}
+
       <SectionCard
         title={currentUser.role === "student" ? "Bana acik notlar" : "Not ve ajanda akisi"}
         subtitle={
