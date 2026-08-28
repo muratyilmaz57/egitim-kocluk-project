@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { SectionCard } from "@web/components/dashboard/section-card";
+import { FocusTrendChart } from "@web/components/dashboard/focus-trend-chart";
 import { AppShell } from "@web/components/layout/app-shell";
 import { PomodoroActions } from "@web/components/pomodoro/pomodoro-actions";
 import { PomodoroCreateForm } from "@web/components/pomodoro/pomodoro-create-form";
@@ -7,6 +8,7 @@ import {
   formatDate,
   formatMinutes,
   getCurrentUser,
+  getDashboardData,
   getPomodoroSessions,
   getStudents,
   getTasks,
@@ -18,10 +20,11 @@ export default async function PomodoroPage() {
     redirect("/login");
   }
 
-  const [sessions, students, tasks] = await Promise.all([
+  const [sessions, students, tasks, dashboardData] = await Promise.all([
     getPomodoroSessions(currentUser.studentProfileId ?? undefined),
     currentUser.role === "student" ? Promise.resolve([]) : getStudents(),
     getTasks(currentUser.studentProfileId ?? undefined),
+    currentUser.role === "student" ? Promise.resolve(null) : getDashboardData(),
   ]);
 
   return (
@@ -38,6 +41,17 @@ export default async function PomodoroPage() {
             ]
       }
     >
+      {currentUser.role !== "student" ? (
+        <SectionCard
+          title="Haftalık çalışma eğilimi"
+          subtitle="Son 7 günün Pomodoro odak dakika trendi"
+          icon="focus"
+          tone="teal"
+        >
+          <FocusTrendChart data={dashboardData?.focusTrend ?? []} />
+        </SectionCard>
+      ) : null}
+
       <SectionCard
         title={currentUser.role === "student" ? "Yeni odak oturumu" : "Yeni pomodoro oturumu"}
         subtitle="Oturum suresi ve notlariyla kayit olustur"
