@@ -219,6 +219,7 @@ export class StudentsService {
           studentCode: this.generateStudentCode(dto.fullName),
           fullName: dto.fullName,
           gradeLevel: dto.gradeLevel,
+          photoUrl: dto.photoUrl || "/images/avatars/default-boy.svg",
           targetExam: dto.targetExam,
           parentName: dto.parentName,
           parentPhone: dto.parentPhone,
@@ -269,20 +270,25 @@ export class StudentsService {
         throw new ForbiddenException("Coaches can only update their own students.");
       }
 
+      if (actor.role === "student" && student.userId?.toString() !== actor.id) {
+        throw new ForbiddenException("Students can only update their own profile photo.");
+      }
+
       const updated = await this.prisma.student.update({
         where: {
           id: student.id,
         },
         data: {
-          ...(dto.fullName ? { fullName: dto.fullName } : {}),
-          ...(dto.gradeLevel ? { gradeLevel: dto.gradeLevel } : {}),
-          ...(dto.schoolName !== undefined ? { schoolName: dto.schoolName || null } : {}),
-          ...(dto.targetExam !== undefined ? { targetExam: dto.targetExam || null } : {}),
-          ...(dto.parentName !== undefined ? { parentName: dto.parentName || null } : {}),
-          ...(dto.parentPhone !== undefined ? { parentPhone: dto.parentPhone || null } : {}),
-          ...(dto.parentEmail !== undefined ? { parentEmail: dto.parentEmail || null } : {}),
-          ...(dto.enrollmentDate ? { enrollmentDate: new Date(dto.enrollmentDate) } : {}),
-          ...(dto.status ? { status: dto.status } : {}),
+          ...(dto.photoUrl !== undefined ? { photoUrl: dto.photoUrl || null } : {}),
+          ...(actor.role !== "student" && dto.fullName ? { fullName: dto.fullName } : {}),
+          ...(actor.role !== "student" && dto.gradeLevel ? { gradeLevel: dto.gradeLevel } : {}),
+          ...(actor.role !== "student" && dto.schoolName !== undefined ? { schoolName: dto.schoolName || null } : {}),
+          ...(actor.role !== "student" && dto.targetExam !== undefined ? { targetExam: dto.targetExam || null } : {}),
+          ...(actor.role !== "student" && dto.parentName !== undefined ? { parentName: dto.parentName || null } : {}),
+          ...(actor.role !== "student" && dto.parentPhone !== undefined ? { parentPhone: dto.parentPhone || null } : {}),
+          ...(actor.role !== "student" && dto.parentEmail !== undefined ? { parentEmail: dto.parentEmail || null } : {}),
+          ...(actor.role !== "student" && dto.enrollmentDate ? { enrollmentDate: new Date(dto.enrollmentDate) } : {}),
+          ...(actor.role !== "student" && dto.status ? { status: dto.status } : {}),
         },
         include: {
           tasks: {
@@ -380,6 +386,7 @@ export class StudentsService {
     userId?: bigint | null;
     fullName: string;
     gradeLevel: string;
+    photoUrl?: string | null;
     parentName?: string | null;
     targetExam: string | null;
     status: string;
@@ -400,6 +407,7 @@ export class StudentsService {
       userId: student.userId ? student.userId.toString() : null,
       fullName: student.fullName,
       gradeLevel: student.gradeLevel,
+      photoUrl: student.photoUrl ?? null,
       parentName: student.parentName ?? null,
       targetExam: student.targetExam,
       status: student.status,
