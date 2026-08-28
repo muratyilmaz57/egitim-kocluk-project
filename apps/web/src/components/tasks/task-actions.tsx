@@ -21,6 +21,7 @@ function toDateTimeLocalValue(value: string | null) {
 
 export function TaskActions({ task, lessons = [] }: TaskActionsProps) {
   const router = useRouter();
+  const [isOpen, setIsOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedLessonId, setSelectedLessonId] = useState<string>(task.lessonId ?? "");
   const [selectedTopicId, setSelectedTopicId] = useState<string>(task.topicId ?? "");
@@ -70,6 +71,7 @@ export function TaskActions({ task, lessons = [] }: TaskActionsProps) {
     }
 
     startTransition(() => {
+      setIsOpen(false);
       router.refresh();
     });
   }
@@ -94,6 +96,7 @@ export function TaskActions({ task, lessons = [] }: TaskActionsProps) {
     }
 
     startTransition(() => {
+      setIsOpen(false);
       router.refresh();
     });
   }
@@ -111,15 +114,30 @@ export function TaskActions({ task, lessons = [] }: TaskActionsProps) {
     }
 
     startTransition(() => {
+      setIsOpen(false);
       router.refresh();
     });
   }
 
   return (
-    <details className="inline-editor">
-      <summary className="secondary-button inline-button">Duzenle</summary>
+    <>
+      <button className="secondary-button inline-button" type="button" onClick={() => setIsOpen(true)}>
+        Düzenle
+      </button>
+      {isOpen ? (
+      <div className="modal-shell" role="dialog" aria-modal="true" aria-labelledby={`task-edit-title-${task.id}`}>
+      <button className="modal-backdrop task-edit-backdrop" type="button" aria-label="Kapat" onClick={() => setIsOpen(false)} />
+      <div className="modal-card task-edit-modal">
+        <div className="modal-card__header">
+          <div>
+            <h2 id={`task-edit-title-${task.id}`}>Görevi düzenle</h2>
+            <p>{task.student.fullName} · Görev bilgilerini kompakt biçimde güncelleyin.</p>
+          </div>
+          <button className="modal-card__close" type="button" aria-label="Kapat" onClick={() => setIsOpen(false)}>×</button>
+        </div>
+        <div className="modal-card__body">
       <form
-        className="inline-editor__form"
+        className="student-form task-edit-form"
         onSubmit={(event) => {
           event.preventDefault();
           void submitPatch(new FormData(event.currentTarget));
@@ -220,6 +238,10 @@ export function TaskActions({ task, lessons = [] }: TaskActionsProps) {
         </div>
         {error ? <span className="inline-error">{error}</span> : null}
       </form>
-    </details>
+        </div>
+      </div>
+      </div>
+      ) : null}
+    </>
   );
 }
