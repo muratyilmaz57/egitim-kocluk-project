@@ -193,9 +193,6 @@ export type TaskRecord = {
   title: string;
   taskType: string;
   description: string | null;
-  resourceUrl: string | null;
-  resourceFilePath: string | null;
-  resourceFileName: string | null;
   targetQuestionCount: number;
   targetMinutes: number;
   priority: string;
