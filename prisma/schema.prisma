@@ -311,6 +311,9 @@ model Task {
   title               String       @db.VarChar(150)
   taskType            TaskType     @map("task_type")
   description         String?      @db.Text
+  resourceUrl         String?      @map("resource_url") @db.VarChar(500)
+  resourceFilePath    String?      @map("resource_file_path") @db.VarChar(500)
+  resourceFileName    String?      @map("resource_file_name") @db.VarChar(255)
   targetQuestionCount Int          @default(0) @map("target_question_count")
   targetMinutes       Int          @default(0) @map("target_minutes")
   priority            TaskPriority @default(medium)
