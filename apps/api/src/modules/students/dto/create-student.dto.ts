@@ -27,6 +27,11 @@ export class CreateStudentDto {
 
   @IsOptional()
   @IsString()
+  @MaxLength(255)
+  photoUrl?: string;
+
+  @IsOptional()
+  @IsString()
   @MaxLength(50)
   targetExam?: string;
 
