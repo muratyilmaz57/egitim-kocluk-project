@@ -241,6 +241,7 @@ model Lesson {
   coachId   BigInt     @map("coach_id") @db.UnsignedBigInt
   name      String     @db.VarChar(100)
   code      String     @unique @db.VarChar(30)
+  gradeLevel String?   @map("grade_level") @db.VarChar(30)
   color     String?    @db.VarChar(20)
   icon      String?    @db.VarChar(50)
   sortOrder Int        @default(0) @map("sort_order")
@@ -253,6 +254,7 @@ model Lesson {
   resources Resource[]
 
   @@index([isActive, sortOrder])
+  @@index([gradeLevel])
   @@map("lessons")
 }
 
