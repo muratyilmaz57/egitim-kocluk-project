@@ -2,9 +2,11 @@
 
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
+import { GradeLevelSelect } from "@web/components/ui/grade-level-select";
 
 type LessonCreateFormProps = {
   onSuccessRedirectTo?: string;
+  defaultGradeLevel?: string;
 };
 
 const COLOR_PRESETS = [
@@ -16,7 +18,7 @@ const COLOR_PRESETS = [
   "#2563eb",
 ];
 
-export function LessonCreateForm({ onSuccessRedirectTo }: LessonCreateFormProps) {
+export function LessonCreateForm({ onSuccessRedirectTo, defaultGradeLevel = "8. sinif" }: LessonCreateFormProps) {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [color, setColor] = useState("#3158d6");
@@ -32,6 +34,7 @@ export function LessonCreateForm({ onSuccessRedirectTo }: LessonCreateFormProps)
       },
       body: JSON.stringify({
         name: String(formData.get("name") ?? ""),
+        gradeLevel: String(formData.get("gradeLevel") ?? ""),
         code: String(formData.get("code") ?? "") || undefined,
         color: color || undefined,
       }),
@@ -61,6 +64,10 @@ export function LessonCreateForm({ onSuccessRedirectTo }: LessonCreateFormProps)
       }}
     >
       <div className="student-form__grid">
+        <label className="auth-field">
+          <span>Sınıf</span>
+          <GradeLevelSelect defaultValue={defaultGradeLevel} required />
+        </label>
         <label className="auth-field">
           <span>Ders Adi</span>
           <input name="name" placeholder="TYT Matematik" required />
