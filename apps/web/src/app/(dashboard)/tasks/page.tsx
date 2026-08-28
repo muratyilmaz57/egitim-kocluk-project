@@ -101,6 +101,12 @@ export default async function TasksPage({
                         ? `${task.targetMinutes} dk`
                         : `${task.targetQuestionCount} soru`}
                     </span>
+                    {task.resourceUrl || task.resourceFilePath ? (
+                      <span className="task-resource-links">
+                        {task.resourceUrl ? <a href={task.resourceUrl} target="_blank" rel="noreferrer">Bağlantıyı aç</a> : null}
+                        {task.resourceFilePath ? <a href={task.resourceFilePath} target="_blank" rel="noreferrer">{task.resourceFileName ?? "Dosyayı aç"}</a> : null}
+                      </span>
+                    ) : null}
                   </div>
                   <div className="list-item__aside">
                     <span className="badge badge--warning">
