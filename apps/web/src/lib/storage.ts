@@ -14,6 +14,7 @@ const ALLOWED_TYPES = new Set([
   "application/vnd.openxmlformats-officedocument.presentationml.presentation",
   "text/plain",
 ]);
+const ALLOWED_IMAGE_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
 
 type StoredFile = {
   filePath: string;
@@ -31,12 +32,12 @@ function sanitizeFileName(value: string) {
     .toLowerCase();
 }
 
-function ensureSupportedFile(file: File) {
-  if (!ALLOWED_TYPES.has(file.type)) {
+function ensureSupportedFile(file: File, allowedTypes = ALLOWED_TYPES, maxBytes = MAX_FILE_BYTES) {
+  if (!allowedTypes.has(file.type)) {
     throw new Error("Unsupported file type.");
   }
 
-  if (file.size > MAX_FILE_BYTES) {
+  if (file.size > maxBytes) {
     throw new Error("File is too large.");
   }
 }
@@ -89,11 +90,11 @@ function createS3Client() {
   });
 }
 
-async function storeLocally(file: File, objectName: string): Promise<StoredFile> {
-  const relativePath = `/uploads/resources/${objectName}`;
-  const outputPath = join(process.cwd(), "public", "uploads", "resources", objectName);
+async function storeLocally(file: File, objectName: string, folder = "resources"): Promise<StoredFile> {
+  const relativePath = `/uploads/${folder}/${objectName}`;
+  const outputPath = join(process.cwd(), "public", "uploads", folder, objectName);
 
-  await mkdir(join(process.cwd(), "public", "uploads", "resources"), { recursive: true });
+  await mkdir(join(process.cwd(), "public", "uploads", folder), { recursive: true });
   await writeFile(outputPath, Buffer.from(await file.arrayBuffer()));
 
   return {
@@ -104,9 +105,9 @@ async function storeLocally(file: File, objectName: string): Promise<StoredFile>
   };
 }
 
-async function storeOnS3(file: File, objectName: string): Promise<StoredFile> {
+async function storeOnS3(file: File, objectName: string, folder = "resources"): Promise<StoredFile> {
   const client = createS3Client();
-  const key = `resources/${objectName}`;
+  const key = `${folder}/${objectName}`;
 
   await client.send(
     new PutObjectCommand({
@@ -139,4 +140,19 @@ export async function storeResourceFile(file: File): Promise<StoredFile> {
   }
 
   return storeLocally(file, objectName);
+}
+
+export async function storeStudentAvatar(file: File): Promise<StoredFile> {
+  ensureSupportedFile(file, ALLOWED_IMAGE_TYPES, 3 * 1024 * 1024);
+  const { objectName } = getSafeFileParts(file);
+
+  if (isS3Configured()) {
+    try {
+      return await storeOnS3(file, objectName, "student-avatars");
+    } catch (error) {
+      console.warn("S3 avatar upload failed, falling back to local storage.", error);
+    }
+  }
+
+  return storeLocally(file, objectName, "student-avatars");
 }
