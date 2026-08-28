@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import type { ResourceRecord } from "@web/lib/api";
+import { GradeLevelSelect } from "@web/components/ui/grade-level-select";
 
 type ResourceActionsProps = {
   resource: ResourceRecord;
@@ -80,10 +81,11 @@ export function ResourceActions({ resource }: ResourceActionsProps) {
         </select>
         <input name="url" defaultValue={resource.url ?? ""} placeholder="https://..." />
         <input name="filePath" defaultValue={resource.filePath ?? ""} placeholder="https://storage.example.com/resources/..." />
-        <input
+        <GradeLevelSelect
           name="targetGradeLevel"
           defaultValue={resource.targetGradeLevel ?? ""}
-          placeholder="8. sinif"
+          includeEmpty
+          emptyLabel="Sınıf seçiniz"
         />
         <label className="checkbox-field">
           <input name="isFeatured" type="checkbox" defaultChecked={resource.isFeatured} />
