@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import type { StudentDetail } from "@web/lib/api";
+import { GradeLevelSelect } from "@web/components/ui/grade-level-select";
 
 type StudentActionsProps = {
   student: StudentDetail;
@@ -78,7 +79,7 @@ export function StudentActions({ student }: StudentActionsProps) {
       >
         <input name="fullName" defaultValue={student.fullName} required />
         <div className="inline-grid inline-grid--2">
-          <input name="gradeLevel" defaultValue={student.gradeLevel} required />
+          <GradeLevelSelect defaultValue={student.gradeLevel} required />
           <input name="targetExam" defaultValue={student.targetExam ?? ""} />
         </div>
         <input name="schoolName" defaultValue={student.schoolName ?? ""} placeholder="Okul adi" />
