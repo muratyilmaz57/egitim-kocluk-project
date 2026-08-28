@@ -42,6 +42,21 @@ export class CreateTaskDto {
   description?: string;
 
   @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  resourceUrl?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  resourceFilePath?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(255)
+  resourceFileName?: string;
+
+  @IsOptional()
   @IsInt()
   @Min(0)
   targetQuestionCount?: number;
