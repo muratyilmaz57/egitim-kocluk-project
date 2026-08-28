@@ -1,6 +1,5 @@
 import { AppShell } from "@web/components/layout/app-shell";
 import { ExamTrendChart } from "@web/components/dashboard/exam-trend-chart";
-import { FocusTrendChart } from "@web/components/dashboard/focus-trend-chart";
 import { SectionCard } from "@web/components/dashboard/section-card";
 import { StatCard } from "@web/components/dashboard/stat-card";
 import { StatusBreakdown } from "@web/components/dashboard/status-breakdown";
@@ -89,11 +88,7 @@ export default async function DashboardPage() {
       user={currentUser}
       eyebrow="Koç paneli"
       title="Bugünün genel görünümü"
-      actions={[
-        { label: "Yeni öğrenci", href: "/students/new", icon: "plus" },
-        { label: "Haftalık plan", href: "/plans", icon: "plans" },
-        { label: "Deneme ekle", href: "/exams", icon: "exams" },
-      ]}
+      actions={[]}
     >
       <section className="dashboard-overview">
         <div className="stats-grid stats-grid--overview">
@@ -144,17 +139,7 @@ export default async function DashboardPage() {
         </article>
       </section>
 
-      <section className="two-column">
-        <SectionCard
-          title="Haftalik calisma egilimi"
-          subtitle="Son 7 gunun pomodoro odak dakika trendi"
-          icon="focus"
-          tone="teal"
-          action={data ? { label: "Pomodoro", href: "/pomodoro", icon: "pomodoro" } : "API bekleniyor"}
-        >
-          <FocusTrendChart data={data?.focusTrend ?? []} />
-        </SectionCard>
-
+      <section className="dashboard-single-column">
         <SectionCard
           title="Son mesajlar"
           subtitle="Canli mesaj akisindan son 3 kayit"
