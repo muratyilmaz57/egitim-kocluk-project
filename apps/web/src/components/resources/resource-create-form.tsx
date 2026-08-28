@@ -3,20 +3,29 @@
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import type { LessonRecord } from "@web/lib/api";
+import { GradeLevelSelect } from "@web/components/ui/grade-level-select";
+import { lessonMatchesGrade } from "@web/lib/grade-levels";
 
 type ResourceCreateFormProps = {
   lessons: LessonRecord[];
   onSuccessRedirectTo?: string;
+  defaultGradeLevel?: string;
 };
 
 export function ResourceCreateForm({
   lessons,
   onSuccessRedirectTo,
+  defaultGradeLevel = "8. sinif",
 }: ResourceCreateFormProps) {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+  const [gradeLevel, setGradeLevel] = useState(defaultGradeLevel);
+  const [lessonId, setLessonId] = useState("");
+  const filteredLessons = lessons.filter((lesson) => lessonMatchesGrade(lesson, gradeLevel));
+  const topics = filteredLessons.find((lesson) => lesson.id === lessonId)?.topics
+    .filter((topic) => topic.gradeLevel === gradeLevel) ?? [];
 
   async function submitForm(formData: FormData) {
     setError(null);
@@ -50,6 +59,7 @@ export function ResourceCreateForm({
       },
       body: JSON.stringify({
         lessonId: formData.get("lessonId") ? Number(formData.get("lessonId")) : undefined,
+        topicId: formData.get("topicId") ? Number(formData.get("topicId")) : undefined,
         resourceType: String(formData.get("resourceType") ?? "pdf"),
         title: String(formData.get("title") ?? ""),
         description: String(formData.get("description") ?? ""),
@@ -100,10 +110,19 @@ export function ResourceCreateForm({
           </select>
         </label>
         <label className="auth-field">
+          <span>Hedef Sınıf</span>
+          <GradeLevelSelect
+            name="targetGradeLevel"
+            value={gradeLevel}
+            onChange={(value) => { setGradeLevel(value); setLessonId(""); }}
+            required
+          />
+        </label>
+        <label className="auth-field">
           <span>Ders</span>
-          <select name="lessonId" defaultValue="">
+          <select name="lessonId" value={lessonId} onChange={(event) => setLessonId(event.target.value)}>
             <option value="">Genel</option>
-            {lessons.map((lesson) => (
+            {filteredLessons.map((lesson) => (
               <option key={lesson.id} value={lesson.id}>
                 {lesson.name}
               </option>
@@ -111,12 +130,15 @@ export function ResourceCreateForm({
           </select>
         </label>
         <label className="auth-field" style={{ gridColumn: "1 / -1" }}>
+          <span>Konu</span>
+          <select name="topicId" disabled={!lessonId} defaultValue="">
+            <option value="">Genel / konu seçilmedi</option>
+            {topics.map((topic) => <option key={topic.id} value={topic.id}>{topic.name}</option>)}
+          </select>
+        </label>
+        <label className="auth-field" style={{ gridColumn: "1 / -1" }}>
           <span>Baslik</span>
           <input name="title" required placeholder="Paragraf hiz PDF seti" />
-        </label>
-        <label className="auth-field">
-          <span>Hedef Sinif</span>
-          <input name="targetGradeLevel" placeholder="8. sinif" />
         </label>
         <label className="auth-field">
           <span>URL</span>
