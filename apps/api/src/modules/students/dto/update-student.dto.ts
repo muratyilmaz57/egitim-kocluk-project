@@ -20,6 +20,7 @@ export class UpdateStudentDto {
 
   @IsOptional()
   @IsString()
+  @IsIn(["8. sinif", "9. sinif", "10. sinif", "11. sinif", "12. sinif"])
   @MaxLength(30)
   gradeLevel?: string;
 
