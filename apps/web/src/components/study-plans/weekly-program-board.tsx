@@ -33,7 +33,26 @@ type DayGroup = {
   shortDate: string;
   isToday: boolean;
   tasks: TaskRecord[];
+  isOutsideMonth?: boolean;
 };
+
+function monthCalendarDays(baseDate: Date) {
+  const first = new Date(baseDate.getFullYear(), baseDate.getMonth(), 1);
+  const gridStart = startOfCalendarWeek(first);
+  return Array.from({ length: 42 }, (_, index) => {
+    const date = new Date(gridStart);
+    date.setDate(gridStart.getDate() + index);
+    return date.toISOString().slice(0, 10);
+  });
+}
+
+function startOfCalendarWeek(date: Date) {
+  const value = new Date(date);
+  const day = value.getDay();
+  value.setDate(value.getDate() + (day === 0 ? -6 : 1 - day));
+  value.setHours(0, 0, 0, 0);
+  return value;
+}
 
 function formatDayName(value: string) {
   return new Intl.DateTimeFormat("tr-TR", {
@@ -169,6 +188,9 @@ export function WeeklyProgramBoard({
   const today = new Date();
   const [dragEnabled, setDragEnabled] = useState(true);
   const [hourlyMode, setHourlyMode] = useState(false);
+  const [viewMode, setViewMode] = useState<"week" | "month">("week");
+  const [monthOffset, setMonthOffset] = useState(0);
+  const [copiedTaskId, setCopiedTaskId] = useState<string | null>(null);
   const [selectedDate, setSelectedDate] = useState<string>(
     weekDays.find((day) => sameDay(day, today)) ?? weekDays[0] ?? weekStart,
   );
@@ -176,14 +198,21 @@ export function WeeklyProgramBoard({
   const [error, setError] = useState<string | null>(null);
   const [, startTransition] = useTransition();
 
+  const monthBase = new Date(today.getFullYear(), today.getMonth() + monthOffset, 1);
+  const displayDays = viewMode === "month" ? monthCalendarDays(monthBase) : weekDays;
+  const displayStart = displayDays[0] ?? weekStart;
+  const displayEnd = displayDays.at(-1) ?? weekEnd;
+  const displayLabel = viewMode === "month"
+    ? new Intl.DateTimeFormat("tr-TR", { month: "long", year: "numeric" }).format(monthBase)
+    : weekLabel;
   const visiblePlans = plans.filter(
     (plan) =>
-      new Date(plan.startDate).getTime() <= new Date(weekEnd).getTime() &&
-      new Date(plan.endDate).getTime() >= new Date(weekStart).getTime(),
+      new Date(plan.startDate).getTime() <= new Date(displayEnd).getTime() &&
+      new Date(plan.endDate).getTime() >= new Date(displayStart).getTime(),
   );
   const canManage = user.role !== "student";
   const weekTasks = tasks
-    .filter((task) => task.dueAt && weekDays.some((day) => sameDay(task.dueAt as string, day)))
+    .filter((task) => task.dueAt && displayDays.some((day) => sameDay(task.dueAt as string, day)))
     .sort((left, right) => {
       if (!left.dueAt || !right.dueAt) {
         return 0;
@@ -192,12 +221,13 @@ export function WeeklyProgramBoard({
       return new Date(left.dueAt).getTime() - new Date(right.dueAt).getTime();
     });
 
-  const dayGroups: DayGroup[] = weekDays.map((day) => ({
+  const dayGroups: DayGroup[] = displayDays.map((day) => ({
     isoDate: day,
     dayName: formatDayName(day),
     shortDate: formatDayDate(day),
     isToday: sameDay(day, today),
     tasks: weekTasks.filter((task) => task.dueAt && sameDay(task.dueAt, day)),
+    isOutsideMonth: viewMode === "month" && new Date(day).getMonth() !== monthBase.getMonth(),
   }));
 
   const scheduledTasks = weekTasks.length;
@@ -233,6 +263,35 @@ export function WeeklyProgramBoard({
     });
   }
 
+  async function pasteTask(isoDate: string) {
+    const task = tasks.find((item) => item.id === copiedTaskId);
+    if (!task || !canManage) return;
+    setError(null);
+    const response = await fetch("/api/tasks", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        studentId: Number(task.student.id),
+        lessonId: task.lessonId ? Number(task.lessonId) : undefined,
+        topicId: task.topicId ? Number(task.topicId) : undefined,
+        title: task.title,
+        description: task.description ?? "",
+        taskType: task.taskType,
+        targetQuestionCount: task.targetQuestionCount,
+        targetMinutes: task.targetMinutes,
+        priority: task.priority,
+        dueAt: nextDueAt(isoDate, task.dueAt),
+      }),
+    });
+    if (!response.ok) {
+      const payload = await response.json().catch(() => null);
+      setError(payload?.message ?? "Görev yapıştırılamadı.");
+      return;
+    }
+    setCopiedTaskId(null);
+    startTransition(() => router.refresh());
+  }
+
   return (
     <div className="planner-shell">
       <section className="planner-panel planner-panel--hero">
@@ -240,7 +299,7 @@ export function WeeklyProgramBoard({
           <div className="planner-heading">
             <span className="planner-heading__bar" />
             <div>
-              <h2>Haftalik Calisma Programi</h2>
+              <h2>{viewMode === "month" ? "Aylık Çalışma Programı" : "Haftalık Çalışma Programı"}</h2>
               <p>
                 {user.role === "student"
                   ? "Haftalik planini, gunlere dagilan gorevlerini ve odak akisini takip et."
@@ -260,6 +319,14 @@ export function WeeklyProgramBoard({
         <div className="planner-toolbar-card">
           <div className="planner-toolbar-card__row">
             <div className="planner-nav">
+              {viewMode === "month" ? (
+                <>
+                  <button className="planner-nav__button" type="button" onClick={() => setMonthOffset((value) => value - 1)}>Önceki ay</button>
+                  <button className="planner-nav__button planner-nav__button--primary" type="button" onClick={() => setMonthOffset(0)}>Bu ay</button>
+                  <button className="planner-nav__button" type="button" onClick={() => setMonthOffset((value) => value + 1)}>Sonraki ay</button>
+                </>
+              ) : (
+              <>
               <Link className="planner-nav__button" href={buildHref(pathname, weekOffset - 1, selectedStudentId)}>
                 {"<<"} Hafta
               </Link>
@@ -275,11 +342,17 @@ export function WeeklyProgramBoard({
               <Link className="planner-nav__button" href={buildHref(pathname, weekOffset + 1, selectedStudentId)}>
                 Hafta {">>"}
               </Link>
+              </>
+              )}
             </div>
 
             <div className="planner-toolbar-card__meta">
               <span className="planner-bullet" />
-              <strong>{weekLabel}</strong>
+              <strong>{displayLabel}</strong>
+              <div className="planner-view-switch" aria-label="Takvim görünümü">
+                <button className={viewMode === "week" ? "is-active" : ""} type="button" onClick={() => setViewMode("week")}>Hafta</button>
+                <button className={viewMode === "month" ? "is-active" : ""} type="button" onClick={() => setViewMode("month")}>Ay</button>
+              </div>
               <label className="planner-switch">
                 <span>Saatli Mod</span>
                 <input
@@ -353,6 +426,7 @@ export function WeeklyProgramBoard({
               Kartlari baska gun kolonlarina birakarak teslim tarihini canli guncelleyebilirsin.
             </div>
           ) : null}
+          {copiedTaskId ? <div className="planner-copy-banner">Görev kopyalandı. Hedef günün içine tıklayarak yapıştırın.</div> : null}
 
           {error ? <div className="auth-error">{error}</div> : null}
 
@@ -379,10 +453,10 @@ export function WeeklyProgramBoard({
       </section>
 
       <section className="planner-panel">
-        <div className={`planner-week-grid${hourlyMode ? " planner-week-grid--hourly" : ""}`}>
+        <div className={`${viewMode === "month" ? "planner-month-grid" : "planner-week-grid"}${hourlyMode ? " planner-week-grid--hourly" : ""}`}>
           {dayGroups.map((day) => (
             <div
-              className={`planner-day${day.isToday ? " planner-day--today" : ""}${dragEnabled ? " planner-day--droppable" : ""}`}
+              className={`planner-day${day.isToday ? " planner-day--today" : ""}${dragEnabled ? " planner-day--droppable" : ""}${day.isOutsideMonth ? " planner-day--outside" : ""}${copiedTaskId ? " planner-day--paste-ready" : ""}`}
               key={day.isoDate}
               onDragOver={(event) => {
                 if (!dragEnabled || !canManage) {
@@ -420,13 +494,14 @@ export function WeeklyProgramBoard({
                 ) : null}
               </div>
 
-              <div className="planner-day__body">
+              <div className="planner-day__body" onClick={() => copiedTaskId ? void pasteTask(day.isoDate) : undefined}>
                 {day.tasks.length ? (
                   day.tasks.map((task) => (
                     <article
                       className={`planner-task-card${dragEnabled && canManage ? " planner-task-card--draggable" : ""}`}
                       draggable={dragEnabled && canManage}
                       key={task.id}
+                      onClick={(event) => event.stopPropagation()}
                       onDragStart={() => setDraggingTaskId(task.id)}
                       onDragEnd={() => setDraggingTaskId(null)}
                     >
@@ -443,12 +518,19 @@ export function WeeklyProgramBoard({
                         {task.targetQuestionCount ? <span>{task.targetQuestionCount} soru</span> : null}
                         <span>%{task.progressPercent}</span>
                       </div>
-                      {canManage ? <TaskActions task={task} lessons={lessons} /> : null}
+                      {canManage ? (
+                        <div className="planner-task-actions">
+                          <TaskActions task={task} lessons={lessons} />
+                          <button className={copiedTaskId === task.id ? "task-copy-button task-copy-button--active" : "task-copy-button"} type="button" onClick={() => setCopiedTaskId(task.id)} aria-label={`${task.title} görevini kopyala`}>
+                            Kopyala
+                          </button>
+                        </div>
+                      ) : null}
                     </article>
                   ))
                 ) : (
                   <div className="planner-empty">
-                    Bos - Gorev surukleyin
+                    {copiedTaskId ? "Buraya yapıştır" : "Boş · Görev sürükleyin"}
                   </div>
                 )}
               </div>
