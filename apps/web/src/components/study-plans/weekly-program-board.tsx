@@ -318,6 +318,52 @@ export function WeeklyProgramBoard({
 
         <div className="planner-toolbar-card">
           <div className="planner-toolbar-card__row">
+            {canManage ? (
+              <div className="planner-filters planner-filters--primary">
+                <label className="planner-student-select">
+                  <span>Öğrenci</span>
+                  <select
+                    value={selectedStudentId ?? ""}
+                    onChange={(event) => router.push(buildHref(pathname, weekOffset, event.target.value || null))}
+                  >
+                    <option value="">Öğrenci seçin</option>
+                    {students.map((student) => (
+                      <option key={student.id} value={student.id}>
+                        {student.fullName} | {student.gradeLevel}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              </div>
+            ) : <span />}
+
+            <div className="planner-toolbar-card__meta">
+              <span className="planner-bullet" />
+              <strong>{displayLabel}</strong>
+              <div className="planner-view-switch" aria-label="Takvim görünümü">
+                <button className={viewMode === "week" ? "is-active" : ""} type="button" onClick={() => setViewMode("week")}>Hafta</button>
+                <button className={viewMode === "month" ? "is-active" : ""} type="button" onClick={() => setViewMode("month")}>Ay</button>
+              </div>
+              <label className="planner-switch">
+                <span>Saatli Mod</span>
+                <input checked={hourlyMode} onChange={(event) => setHourlyMode(event.target.checked)} type="checkbox" />
+                <span className="planner-switch__track" />
+              </label>
+            </div>
+          </div>
+
+          <div className="planner-toolbar-card__row planner-toolbar-card__row--secondary">
+            {canManage ? (
+              <div className="planner-actions">
+                <button className="planner-action planner-action--primary" disabled={!selectedStudentId} type="button" onClick={() => {
+                  const dueDate = selectedDate || weekDays[0] || weekStart;
+                  router.push(buildModalHref(pathname, weekOffset, selectedStudentId, "createTask", dueDate));
+                }}>+ Görev Ekle</button>
+                <button className="planner-action" disabled={!selectedStudentId} type="button" onClick={() => router.push(buildModalHref(pathname, weekOffset, selectedStudentId, "createPlan"))}>Hızlı Program</button>
+                <button className={`planner-action planner-action--success${dragEnabled ? " planner-action--active" : ""}`} disabled={!selectedStudentId} type="button" onClick={() => setDragEnabled((current) => !current)}>Sürükle-Bırak</button>
+              </div>
+            ) : <span />}
+
             <div className="planner-nav">
               {viewMode === "month" ? (
                 <>
@@ -345,87 +391,7 @@ export function WeeklyProgramBoard({
               </>
               )}
             </div>
-
-            <div className="planner-toolbar-card__meta">
-              <span className="planner-bullet" />
-              <strong>{displayLabel}</strong>
-              <div className="planner-view-switch" aria-label="Takvim görünümü">
-                <button className={viewMode === "week" ? "is-active" : ""} type="button" onClick={() => setViewMode("week")}>Hafta</button>
-                <button className={viewMode === "month" ? "is-active" : ""} type="button" onClick={() => setViewMode("month")}>Ay</button>
-              </div>
-              <label className="planner-switch">
-                <span>Saatli Mod</span>
-                <input
-                  checked={hourlyMode}
-                  onChange={(event) => setHourlyMode(event.target.checked)}
-                  type="checkbox"
-                />
-                <span className="planner-switch__track" />
-              </label>
-            </div>
           </div>
-
-          {canManage ? (
-            <div className="planner-toolbar-card__row planner-toolbar-card__row--secondary">
-              <div className="planner-actions">
-                <button
-                  className="planner-action planner-action--primary"
-                  type="button"
-                  onClick={() => {
-                    const dueDate = selectedDate || weekDays[0] || weekStart;
-                    router.push(
-                      buildModalHref(pathname, weekOffset, selectedStudentId, "createTask", dueDate),
-                    );
-                  }}
-                >
-                  + Gorev Ekle
-                </button>
-                <button
-                  className="planner-action"
-                  type="button"
-                  onClick={() =>
-                    router.push(buildModalHref(pathname, weekOffset, selectedStudentId, "createPlan"))
-                  }
-                >
-                  Hizli Program
-                </button>
-                <button
-                  className={`planner-action planner-action--success${dragEnabled ? " planner-action--active" : ""}`}
-                  type="button"
-                  onClick={() => setDragEnabled((current) => !current)}
-                >
-                  Surukle-Birak
-                </button>
-              </div>
-
-              <div className="planner-filters">
-                {user.role !== "student" && students.length ? (
-                  <label className="planner-student-select">
-                    <span>Ogrenci</span>
-                    <select
-                      defaultValue={selectedStudentId ?? students[0]?.id}
-                      onChange={(event) => {
-                        const href = buildHref(pathname, weekOffset, event.target.value);
-                        router.push(href);
-                      }}
-                    >
-                      {students.map((student) => (
-                        <option key={student.id} value={student.id}>
-                          {student.fullName} | {student.gradeLevel}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
-                ) : null}
-              </div>
-            </div>
-          ) : null}
-
-          {dragEnabled ? (
-            <div className="planner-banner">
-              Kartlari baska gun kolonlarina birakarak teslim tarihini canli guncelleyebilirsin.
-            </div>
-          ) : null}
           {copiedTaskId ? <div className="planner-copy-banner">Görev kopyalandı. Hedef günün içine tıklayarak yapıştırın.</div> : null}
 
           {error ? <div className="auth-error">{error}</div> : null}
@@ -433,7 +399,14 @@ export function WeeklyProgramBoard({
         </div>
       </section>
 
-      <section className="planner-metrics">
+      {canManage && !selectedStudentId ? (
+        <section className="planner-empty-state">
+          <strong>Çalışma programını görüntülemek için öğrenci seçin.</strong>
+          <span>Sol üstteki öğrenci alanından seçim yaptığınızda plan ve görevler burada açılır.</span>
+        </section>
+      ) : null}
+
+      {selectedStudentId ? <><section className="planner-metrics">
         <div className="planner-metric">
           <span>Haftalik hedef</span>
           <strong>{formatMinutes(weekTargetMinutes)}</strong>
@@ -537,7 +510,7 @@ export function WeeklyProgramBoard({
             </div>
           ))}
         </div>
-      </section>
+      </section></> : null}
 
       <section className="planner-panel">
         <div className="section-card__header">
