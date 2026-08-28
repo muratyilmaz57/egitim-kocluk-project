@@ -3,6 +3,7 @@ import {
   ForbiddenException,
   Injectable,
   ServiceUnavailableException,
+  NotFoundException,
 } from "@nestjs/common";
 import { PrismaService } from "../../prisma/prisma.service";
 import { AuditLogsService } from "../audit-logs/audit-logs.service";
@@ -10,6 +11,7 @@ import type { AuthUser } from "../auth/types/auth-user";
 import { CreateLessonDto } from "./dto/create-lesson.dto";
 import { CreateTopicDto } from "./dto/create-topic.dto";
 import { ImportLessonsDto } from "./dto/import-lessons.dto";
+import { UpdateLessonDto } from "./dto/update-lesson.dto";
 
 @Injectable()
 export class LessonsService {
@@ -174,6 +176,55 @@ export class LessonsService {
     }
   }
 
+  async updateLesson(id: number, dto: UpdateLessonDto, actor: AuthUser) {
+    try {
+      const lesson = await this.prisma.lesson.findUnique({ where: { id: BigInt(id) } });
+      if (!lesson) throw new NotFoundException("Ders bulunamadı.");
+      if (actor.role === "coach" && lesson.coachId.toString() !== actor.id) {
+        throw new ForbiddenException("Yalnızca kendi derslerinizi düzenleyebilirsiniz.");
+      }
+
+      const updated = await this.prisma.lesson.update({
+        where: { id: lesson.id },
+        data: {
+          ...(dto.name !== undefined ? { name: dto.name.trim() } : {}),
+          ...(dto.code !== undefined ? { code: await this.ensureUniqueCode(dto.code, lesson.id) } : {}),
+          ...(dto.gradeLevel !== undefined ? { gradeLevel: dto.gradeLevel } : {}),
+          ...(dto.color !== undefined ? { color: dto.color.trim() || null } : {}),
+        },
+      });
+
+      await this.auditLogsService.log({ actorUserId: actor.id, action: "lesson.update", entityType: "lesson", entityId: lesson.id.toString(), description: `${updated.name} dersi güncellendi.` });
+      return { id: updated.id.toString(), name: updated.name, code: updated.code, gradeLevel: updated.gradeLevel, color: updated.color };
+    } catch (error) {
+      if (error instanceof BadRequestException || error instanceof ForbiddenException || error instanceof NotFoundException) throw error;
+      throw new ServiceUnavailableException("Ders güncellenemedi.", { cause: error });
+    }
+  }
+
+  async removeLesson(id: number, actor: AuthUser) {
+    try {
+      const lesson = await this.prisma.lesson.findUnique({
+        where: { id: BigInt(id) },
+        include: { _count: { select: { topics: true, tasks: true, resources: true } } },
+      });
+      if (!lesson) throw new NotFoundException("Ders bulunamadı.");
+      if (actor.role === "coach" && lesson.coachId.toString() !== actor.id) {
+        throw new ForbiddenException("Yalnızca kendi derslerinizi silebilirsiniz.");
+      }
+      const relatedCount = lesson._count.topics + lesson._count.tasks + lesson._count.resources;
+      if (relatedCount > 0) {
+        throw new BadRequestException("Bu derse bağlı konu, görev veya kaynaklar var. Veri kaybını önlemek için önce bağlı kayıtları kaldırın.");
+      }
+      await this.prisma.lesson.delete({ where: { id: lesson.id } });
+      await this.auditLogsService.log({ actorUserId: actor.id, action: "lesson.delete", entityType: "lesson", entityId: lesson.id.toString(), description: `${lesson.name} dersi silindi.` });
+      return { success: true };
+    } catch (error) {
+      if (error instanceof BadRequestException || error instanceof ForbiddenException || error instanceof NotFoundException) throw error;
+      throw new ServiceUnavailableException("Ders silinemedi.", { cause: error });
+    }
+  }
+
   async importRows(dto: ImportLessonsDto, actor: AuthUser) {
     try {
       if (!dto.rows.length) {
@@ -207,98 +258,3 @@ export class LessonsService {
             data: {
               coachId,
               name: lessonName,
-              code: await this.ensureUniqueCode(row.lessonCode ?? lessonName, undefined),
-              color: row.lessonColor?.trim() || null,
-              gradeLevel: row.gradeLevel?.trim() || null,
-            },
-          });
-          createdLessons += 1;
-        }
-
-        const topicName = row.topicName?.trim();
-        if (!topicName) {
-          continue;
-        }
-
-        const existingTopic = await this.prisma.topic.findFirst({
-          where: {
-            lessonId: lesson.id,
-            name: topicName,
-          },
-        });
-
-        if (existingTopic) {
-          continue;
-        }
-
-        await this.prisma.topic.create({
-          data: {
-            lessonId: lesson.id,
-            name: topicName,
-            description: row.description?.trim() || null,
-            gradeLevel: row.gradeLevel?.trim() || null,
-            difficultyLevel: row.difficultyLevel ?? null,
-            estimatedMinutes: row.estimatedMinutes ?? null,
-          },
-        });
-        createdTopics += 1;
-      }
-
-      await this.auditLogsService.log({
-        actorUserId: actor.id,
-        action: "lesson.import",
-        entityType: "lesson",
-        description: "Ders ve konu iceri aktarma tamamlandi.",
-        metadata: {
-          createdLessons,
-          createdTopics,
-          rowCount: dto.rows.length,
-        },
-      });
-
-      return {
-        success: true,
-        createdLessons,
-        createdTopics,
-        rowCount: dto.rows.length,
-      };
-    } catch (error) {
-      if (error instanceof BadRequestException || error instanceof ForbiddenException) {
-        throw error;
-      }
-
-      throw new ServiceUnavailableException("Lesson import failed.", {
-        cause: error,
-      });
-    }
-  }
-
-  private async ensureUniqueCode(source: string, currentLessonId?: bigint) {
-    const normalized = source
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "")
-      .replace(/[^a-zA-Z0-9]+/g, "_")
-      .replace(/^_+|_+$/g, "")
-      .toUpperCase()
-      .slice(0, 24) || "LESSON";
-
-    let candidate = normalized;
-    let suffix = 1;
-
-    for (;;) {
-      const existing = await this.prisma.lesson.findFirst({
-        where: {
-          code: candidate,
-          ...(currentLessonId ? { NOT: { id: currentLessonId } } : {}),
-        },
-      });
-
-      if (!existing) {
-        return candidate;
-      }
-
-      suffix += 1;
-      candidate = `${normalized.slice(0, 24 - String(suffix).length)}${suffix}`;
-    }
-  }
-}
