@@ -1594,6 +1594,82 @@ textarea {
   gap: 20px;
 }
 
+.dashboard-single-column {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.agenda-calendar {
+  display: grid;
+  gap: 10px;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: var(--shadow);
+}
+
+.agenda-calendar__header,
+.agenda-calendar__controls,
+.agenda-calendar__day-title {
+  display: flex;
+  align-items: center;
+}
+
+.agenda-calendar__header { justify-content: space-between; gap: 16px; }
+.agenda-calendar__header h2 { margin: 0; font-size: 1rem; }
+.agenda-calendar__header p { margin: 3px 0 0; color: var(--muted); font-size: .78rem; }
+.agenda-calendar__controls { gap: 6px; }
+.agenda-calendar__controls > button,
+.agenda-calendar__switch button {
+  min-height: 32px;
+  padding: 6px 10px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: #fff;
+  color: var(--ink-soft);
+  font-weight: 700;
+  cursor: pointer;
+}
+.agenda-calendar__switch { display: flex; padding: 2px; border-radius: 8px; background: var(--surface-soft); }
+.agenda-calendar__switch button { border: 0; background: transparent; }
+.agenda-calendar__switch button.is-active { background: var(--primary); color: #fff; }
+.agenda-calendar__label { font-size: .86rem; font-weight: 800; color: var(--ink); text-transform: capitalize; }
+.agenda-calendar__grid { display: grid; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+.agenda-calendar__grid--month,
+.agenda-calendar__grid--week { grid-template-columns: repeat(7, minmax(0, 1fr)); }
+.agenda-calendar__day { min-height: 112px; padding: 8px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); background: #fff; }
+.agenda-calendar__grid--week .agenda-calendar__day { min-height: 240px; }
+.agenda-calendar__day.is-outside { background: #f8fafc; opacity: .58; }
+.agenda-calendar__day.is-today { box-shadow: inset 0 3px 0 var(--primary); }
+.agenda-calendar__day-title { justify-content: space-between; color: var(--muted); font-size: .7rem; }
+.agenda-calendar__day-title strong { color: var(--ink); font-size: .82rem; }
+.agenda-calendar__events { display: grid; gap: 5px; margin-top: 7px; }
+.agenda-calendar__event { display: grid; gap: 2px; padding: 6px 7px; border-left: 3px solid var(--primary); border-radius: 6px; background: rgba(49, 88, 214, .07); }
+.agenda-calendar__event strong { overflow: hidden; font-size: .7rem; text-overflow: ellipsis; white-space: nowrap; }
+.agenda-calendar__event span { overflow: hidden; color: var(--muted); font-size: .62rem; text-overflow: ellipsis; white-space: nowrap; }
+
+.planner-empty-state {
+  display: grid;
+  place-items: center;
+  gap: 6px;
+  min-height: 210px;
+  padding: 24px;
+  border: 1px dashed var(--line-strong);
+  border-radius: 12px;
+  background: var(--surface-soft);
+  text-align: center;
+}
+.planner-empty-state span { color: var(--muted); font-size: .82rem; }
+.planner-filters--primary { justify-content: flex-start; }
+.planner-action:disabled { cursor: not-allowed; opacity: .45; }
+
+@media (max-width: 900px) {
+  .agenda-calendar__header { align-items: flex-start; flex-direction: column; }
+  .agenda-calendar__grid { overflow-x: auto; }
+  .agenda-calendar__day { min-width: 118px; }
+}
+
 .section-card {
   position: relative;
   padding: 22px;
@@ -4654,6 +4730,62 @@ textarea { min-height: 76px; }
 .task-edit-backdrop {
   border: 0;
   cursor: default;
+}
+
+.plan-edit-backdrop {
+  border: 0;
+  cursor: default;
+}
+
+.lesson-card-link {
+  color: inherit;
+  text-decoration: none;
+}
+
+.lesson-edit-backdrop {
+  border: 0;
+  cursor: default;
+}
+
+.lesson-edit-modal {
+  width: min(560px, calc(100vw - 32px));
+}
+
+.lesson-edit-modal .modal-card__body {
+  padding: 16px 20px 20px;
+}
+
+.lesson-edit-form {
+  gap: 10px;
+}
+
+.plan-edit-modal {
+  width: min(640px, calc(100vw - 32px));
+}
+
+.plan-edit-modal .modal-card__header {
+  padding: 18px 20px 12px;
+}
+
+.plan-edit-modal .modal-card__body {
+  padding: 16px 20px 20px;
+}
+
+.plan-edit-form {
+  gap: 10px;
+}
+
+.plan-edit-form > input,
+.plan-edit-form > textarea,
+.plan-edit-form select {
+  min-width: 0;
+  width: 100%;
+}
+
+@media (max-width: 640px) {
+  .plan-edit-modal .inline-grid--2 {
+    grid-template-columns: 1fr;
+  }
 }
 
 .task-edit-modal {
