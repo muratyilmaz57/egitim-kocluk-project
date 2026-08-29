@@ -20,6 +20,7 @@ type AppShellFrameProps = {
   eyebrow: string;
   user: SessionUser;
   actions?: AppShellAction[];
+  hidePageHeading?: boolean;
   notifications: NotificationPayload | null;
   children: React.ReactNode;
 };
@@ -31,6 +32,7 @@ export function AppShellFrame({
   eyebrow,
   user,
   actions = [],
+  hidePageHeading = false,
   notifications,
   children,
 }: AppShellFrameProps) {
@@ -113,7 +115,7 @@ export function AppShellFrame({
           </div>
         </header>
 
-        <section className="page-heading">
+        {!hidePageHeading ? <section className="page-heading">
           <div className="topbar__title">
             <span className="topbar__eyebrow">{eyebrow}</span>
             <h1>{title}</h1>
@@ -137,7 +139,7 @@ export function AppShellFrame({
               ),
             )}
           </div>
-        </section>
+        </section> : null}
         <div className="content-grid">{children}</div>
       </main>
     </div>
