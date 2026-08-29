@@ -100,14 +100,8 @@ export default async function PlansPage({
       user={currentUser}
       eyebrow="Calisma Programi"
       title={currentUser.role === "student" ? "Haftalik programim" : "Koçluk calisma programi"}
-      actions={
-        currentUser.role === "student"
-          ? [{ label: "Gorevlerim", href: "/tasks" }]
-          : [
-              { label: "Gorevler", href: "/tasks" },
-              { label: "Denemeler", href: "/exams" },
-            ]
-      }
+      actions={[]}
+      hidePageHeading
     >
       <WeeklyProgramBoard
         user={currentUser}
