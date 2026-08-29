@@ -1599,6 +1599,97 @@ textarea {
   grid-template-columns: minmax(0, 1fr);
 }
 
+.pomodoro-compact-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  gap: 12px;
+  align-items: start;
+}
+
+.pomodoro-compact-grid .section-card {
+  min-width: 0;
+  padding: 14px;
+}
+
+.agenda-entry-form {
+  display: grid;
+  gap: 12px;
+}
+
+.agenda-entry-type {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.agenda-entry-type legend {
+  grid-column: 1 / -1;
+  margin-bottom: 2px;
+  color: var(--ink-soft);
+  font-size: .72rem;
+  font-weight: 800;
+}
+
+.agenda-entry-type button {
+  display: grid;
+  gap: 2px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: #fff;
+  color: var(--ink);
+  text-align: left;
+  cursor: pointer;
+}
+
+.agenda-entry-type button.is-active {
+  border-color: var(--primary);
+  background: rgba(49, 88, 214, .07);
+  box-shadow: inset 0 0 0 1px var(--primary);
+}
+
+.agenda-entry-type strong { font-size: .82rem; }
+.agenda-entry-type span { color: var(--muted); font-size: .68rem; }
+
+.agenda-participant-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.agenda-entry-form .auth-field { gap: 5px; }
+.agenda-entry-form .auth-field > span { font-size: .7rem; }
+.agenda-entry-form input,
+.agenda-entry-form select,
+.agenda-entry-form textarea {
+  min-height: 38px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  font-size: .8rem;
+}
+
+.agenda-entry-form textarea { min-height: 76px; resize: vertical; }
+
+.agenda-entry-form__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-top: 2px;
+}
+
+.agenda-entry-form__footer > span { color: var(--muted); font-size: .68rem; }
+.agenda-entry-form__footer .primary-button { min-height: 38px; padding: 8px 16px; }
+
+.modal-card:has(.agenda-entry-form) {
+  width: min(100%, 560px);
+}
+
+.modal-card:has(.agenda-entry-form) .modal-card__body { padding-top: 10px; }
+
 .agenda-calendar {
   display: grid;
   gap: 10px;
@@ -1665,6 +1756,8 @@ textarea {
 .planner-action:disabled { cursor: not-allowed; opacity: .45; }
 
 @media (max-width: 900px) {
+  .pomodoro-compact-grid { grid-template-columns: 1fr; }
+  .agenda-participant-row { grid-template-columns: 1fr; }
   .agenda-calendar__header { align-items: flex-start; flex-direction: column; }
   .agenda-calendar__grid { overflow-x: auto; }
   .agenda-calendar__day { min-width: 118px; }
