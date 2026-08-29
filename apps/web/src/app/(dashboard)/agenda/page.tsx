@@ -96,8 +96,8 @@ export default async function AgendaPage({ searchParams }: AgendaPageProps) {
       {currentUser.role !== "student" && createOpen ? (
         <ModalFrame
           closeHref="/agenda"
-          title="Yeni ajanda kaydi"
-          subtitle="Gorusme, hatirlatici veya haftalik not ekle"
+          title="Takvime ekle"
+          subtitle="Görüşme veya toplantı bilgilerini kaydet"
         >
           <NoteCreateForm students={students} onSuccessRedirectTo="/agenda" />
         </ModalFrame>
