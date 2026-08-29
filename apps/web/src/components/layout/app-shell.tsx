@@ -7,10 +7,11 @@ type AppShellProps = {
   eyebrow: string;
   user: SessionUser;
   actions?: AppShellAction[];
+  hidePageHeading?: boolean;
   children: React.ReactNode;
 };
 
-export async function AppShell({ title, eyebrow, user, actions = [], children }: AppShellProps) {
+export async function AppShell({ title, eyebrow, user, actions = [], hidePageHeading = false, children }: AppShellProps) {
   const notifications = await getNotifications(false, 6);
   return (
     <AppShellFrame
@@ -18,6 +19,7 @@ export async function AppShell({ title, eyebrow, user, actions = [], children }:
       eyebrow={eyebrow}
       user={user}
       actions={actions}
+      hidePageHeading={hidePageHeading}
       notifications={notifications}
     >
       {children}
