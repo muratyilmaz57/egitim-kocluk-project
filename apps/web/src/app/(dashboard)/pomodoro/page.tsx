@@ -41,6 +41,7 @@ export default async function PomodoroPage() {
             ]
       }
     >
+      <div className="pomodoro-compact-grid">
       {currentUser.role !== "student" ? (
         <SectionCard
           title="Haftalık çalışma eğilimi"
@@ -58,6 +59,7 @@ export default async function PomodoroPage() {
       >
         <PomodoroCreateForm currentUser={currentUser} students={students} tasks={tasks} />
       </SectionCard>
+      </div>
 
       <SectionCard
         title={currentUser.role === "student" ? "Son odak oturumlarim" : "Son oturumlar"}
