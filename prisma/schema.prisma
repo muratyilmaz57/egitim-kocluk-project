@@ -404,7 +404,7 @@ model Message {
 
 model Note {
   id         BigInt         @id @default(autoincrement()) @db.UnsignedBigInt
-  studentId  BigInt         @map("student_id") @db.UnsignedBigInt
+  studentId  BigInt?        @map("student_id") @db.UnsignedBigInt
   coachId    BigInt         @map("coach_id") @db.UnsignedBigInt
   noteType   NoteType       @map("note_type")
   title      String         @db.VarChar(150)
@@ -414,7 +414,7 @@ model Note {
   scheduledFor DateTime?    @map("scheduled_for")
   createdAt  DateTime       @default(now()) @map("created_at")
   updatedAt  DateTime       @updatedAt @map("updated_at")
-  student    Student        @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  student    Student?       @relation(fields: [studentId], references: [id], onDelete: SetNull)
   coach      User           @relation(fields: [coachId], references: [id], onDelete: Restrict)
   targets    NoteTarget[]
 
