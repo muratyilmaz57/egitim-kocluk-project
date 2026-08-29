@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useMemo, useState, useTransition } from "react";
+import { useState, useTransition } from "react";
 import type { StudentSummary } from "@web/lib/api";
 
 type NoteCreateFormProps = {
@@ -10,211 +10,100 @@ type NoteCreateFormProps = {
   onSuccessRedirectTo?: string;
 };
 
-function toDateInputValue(value?: string | null) {
-  if (!value) {
-    return new Date().toISOString().slice(0, 10);
-  }
-
-  return new Date(value).toISOString().slice(0, 10);
+function localDateTimeValue() {
+  const date = new Date();
+  date.setMinutes(date.getMinutes() - date.getTimezoneOffset() + 30);
+  return date.toISOString().slice(0, 16);
 }
 
-export function NoteCreateForm({
-  students,
-  onSuccessRedirectTo,
-}: NoteCreateFormProps) {
+export function NoteCreateForm({ students, defaultStudentId, onSuccessRedirectTo }: NoteCreateFormProps) {
   const router = useRouter();
+  const [entryType, setEntryType] = useState<"conversation" | "meeting">("conversation");
+  const [participantType, setParticipantType] = useState<"student" | "parent">("student");
+  const [studentId, setStudentId] = useState(defaultStudentId ?? "");
   const [error, setError] = useState<string | null>(null);
-  const [search, setSearch] = useState("");
-  const [targetEveryone, setTargetEveryone] = useState(false);
-  const [selectedStudentIds, setSelectedStudentIds] = useState<string[]>([]);
-  const [selectedParentIds, setSelectedParentIds] = useState<string[]>([]);
-  const [selectedGradeLevels, setSelectedGradeLevels] = useState<string[]>([]);
   const [isPending, startTransition] = useTransition();
 
-  const gradeLevels = useMemo(
-    () => [...new Set(students.map((student) => student.gradeLevel))].sort((left, right) => left.localeCompare(right, "tr")),
-    [students],
-  );
-  const filteredStudents = students.filter((student) =>
-    `${student.fullName} ${student.gradeLevel}`.toLocaleLowerCase("tr-TR").includes(search.toLocaleLowerCase("tr-TR")),
-  );
-
-  function toggleStudent(studentId: string) {
-    setSelectedStudentIds((current) =>
-      current.includes(studentId)
-        ? current.filter((item) => item !== studentId)
-        : [...current, studentId],
-    );
-    setSelectedParentIds((current) => current.filter((item) => item !== studentId));
-  }
-
-  function toggleParent(studentId: string) {
-    setSelectedParentIds((current) =>
-      current.includes(studentId)
-        ? current.filter((item) => item !== studentId)
-        : [...current, studentId],
-    );
-    if (!selectedStudentIds.includes(studentId)) {
-      setSelectedStudentIds((current) => [...current, studentId]);
-    }
-  }
-
-  function toggleGrade(gradeLevel: string) {
-    setSelectedGradeLevels((current) =>
-      current.includes(gradeLevel)
-        ? current.filter((item) => item !== gradeLevel)
-        : [...current, gradeLevel],
-    );
-  }
-
   async function submitForm(formData: FormData) {
+    if (entryType === "conversation" && !studentId) {
+      setError("Görüşme için öğrenci veya veli seçin.");
+      return;
+    }
     setError(null);
     const response = await fetch("/api/notes", {
       method: "POST",
-      headers: {
-        "content-type": "application/json",
-      },
+      headers: { "content-type": "application/json" },
       body: JSON.stringify({
-        noteType: String(formData.get("noteType") ?? "meeting"),
+        noteType: entryType === "conversation" ? "meeting" : "reminder",
         title: String(formData.get("title") ?? ""),
         content: String(formData.get("content") ?? ""),
-        visibility: String(formData.get("visibility") ?? "private"),
-        rating: formData.get("rating") ? Number(formData.get("rating")) : undefined,
-        scheduledFor: String(formData.get("scheduledFor") ?? ""),
-        studentTargetIds: selectedStudentIds.map(Number),
-        parentTargetIds: selectedParentIds.map(Number),
-        gradeLevels: selectedGradeLevels,
-        targetEveryone,
+        visibility: "private",
+        scheduledFor: new Date(String(formData.get("scheduledFor"))).toISOString(),
+        studentTargetIds: entryType === "conversation" && participantType === "student" ? [Number(studentId)] : [],
+        parentTargetIds: entryType === "conversation" && participantType === "parent" ? [Number(studentId)] : [],
       }),
     });
-
     const payload = await response.json().catch(() => null);
     if (!response.ok) {
-      setError(payload?.message ?? "Not kaydedilemedi.");
+      setError(payload?.message ?? "Takvim kaydı oluşturulamadı.");
       return;
     }
-
-    startTransition(() => {
-      if (onSuccessRedirectTo) {
-        router.replace(onSuccessRedirectTo);
-        return;
-      }
-
-      router.refresh();
-    });
-  }
-
-  if (!students.length) {
-    return null;
+    startTransition(() => onSuccessRedirectTo ? router.replace(onSuccessRedirectTo) : router.refresh());
   }
 
   return (
-    <form
-      className="student-form"
-      onSubmit={(event) => {
-        event.preventDefault();
-        void submitForm(new FormData(event.currentTarget));
-      }}
-    >
-      <div className="student-form__grid">
-        <label className="auth-field">
-          <span>Not Tipi</span>
-          <select name="noteType" defaultValue="meeting">
-            <option value="meeting">Gorusme</option>
-            <option value="reminder">Hatirlatici</option>
-            <option value="weekly_report">Haftalik rapor</option>
-            <option value="motivation">Motivasyon</option>
-            <option value="coach_comment">Koç yorumu</option>
-          </select>
-        </label>
-        <label className="auth-field">
-          <span>Gorunurluk</span>
-          <select name="visibility" defaultValue="private">
-            <option value="private">Sadece koç</option>
-            <option value="student_visible">Ogrenci gorur</option>
-            <option value="parent_visible">Veli gorur</option>
-          </select>
-        </label>
-        <label className="auth-field">
-          <span>Puan</span>
-          <input name="rating" type="number" min="1" max="10" placeholder="8" />
-        </label>
-        <label className="auth-field">
-          <span>Tarih</span>
-          <input name="scheduledFor" type="date" required defaultValue={toDateInputValue()} />
-        </label>
-        <div className="auth-field" style={{ gridColumn: "1 / -1" }}>
-          <span>Etiketler</span>
-          <div className="audience-panel">
-            <div className="audience-panel__toolbar">
-              <input
-                value={search}
-                onChange={(event) => setSearch(event.target.value)}
-                placeholder="Ogrenci ara"
-              />
-              <label className="audience-chip">
-                <input
-                  checked={targetEveryone}
-                  onChange={(event) => setTargetEveryone(event.target.checked)}
-                  type="checkbox"
-                />
-                <span>@everyone</span>
-              </label>
-            </div>
+    <form className="agenda-entry-form" onSubmit={(event) => {
+      event.preventDefault();
+      void submitForm(new FormData(event.currentTarget));
+    }}>
+      <fieldset className="agenda-entry-type">
+        <legend>Kayıt türü</legend>
+        <button className={entryType === "conversation" ? "is-active" : ""} type="button" onClick={() => setEntryType("conversation")}>
+          <strong>Görüşme</strong><span>Öğrenci veya veli görüşmesi</span>
+        </button>
+        <button className={entryType === "meeting" ? "is-active" : ""} type="button" onClick={() => setEntryType("meeting")}>
+          <strong>Toplantı</strong><span>Koçun kişisel toplantısı</span>
+        </button>
+      </fieldset>
 
-            <div className="audience-chip-list">
-              {gradeLevels.map((gradeLevel) => (
-                <label className="audience-chip" key={gradeLevel}>
-                  <input
-                    checked={selectedGradeLevels.includes(gradeLevel)}
-                    onChange={() => toggleGrade(gradeLevel)}
-                    type="checkbox"
-                  />
-                  <span>@{gradeLevel}</span>
-                </label>
-              ))}
-            </div>
-
-            <div className="audience-list">
-              {filteredStudents.map((student) => (
-                <label className="audience-row" key={student.id}>
-                  <span className="audience-row__main">
-                    <input
-                      checked={selectedStudentIds.includes(student.id)}
-                      onChange={() => toggleStudent(student.id)}
-                      type="checkbox"
-                    />
-                    <span>
-                      <strong>{student.fullName}</strong>
-                      <small>{student.gradeLevel}</small>
-                    </span>
-                  </span>
-                  <span className="audience-row__aside">
-                    <input
-                      checked={selectedParentIds.includes(student.id)}
-                      onChange={() => toggleParent(student.id)}
-                      type="checkbox"
-                    />
-                    <span>Veli</span>
-                  </span>
-                </label>
-              ))}
-            </div>
-          </div>
+      {entryType === "conversation" ? (
+        <div className="agenda-participant-row">
+          <label className="auth-field">
+            <span>Görüşülecek kişi</span>
+            <select value={participantType} onChange={(event) => setParticipantType(event.target.value as "student" | "parent")}>
+              <option value="student">Öğrenci</option>
+              <option value="parent">Veli</option>
+            </select>
+          </label>
+          <label className="auth-field">
+            <span>{participantType === "parent" ? "Velisiyle görüşülecek öğrenci" : "Öğrenci"}</span>
+            <select value={studentId} onChange={(event) => setStudentId(event.target.value)} required>
+              <option value="">Seçin</option>
+              {students.map((student) => <option key={student.id} value={student.id}>{student.fullName} · {student.gradeLevel}</option>)}
+            </select>
+          </label>
         </div>
-        <label className="auth-field" style={{ gridColumn: "1 / -1" }}>
-          <span>Baslik</span>
-          <input name="title" required placeholder="Haftalik degerlendirme" autoFocus />
+      ) : null}
+
+      <div className="agenda-participant-row">
+        <label className="auth-field">
+          <span>Başlık</span>
+          <input name="title" required autoFocus placeholder={entryType === "conversation" ? "Aylık değerlendirme" : "Ekip toplantısı"} />
         </label>
-        <label className="auth-field" style={{ gridColumn: "1 / -1" }}>
-          <span>Icerik</span>
-          <textarea name="content" rows={4} required placeholder="Gorusme notu veya aksiyon maddeleri" />
+        <label className="auth-field">
+          <span>Tarih ve saat</span>
+          <input name="scheduledFor" type="datetime-local" required defaultValue={localDateTimeValue()} />
         </label>
       </div>
+      <label className="auth-field">
+        <span>Not</span>
+        <textarea name="content" rows={3} required placeholder="Gündem veya kısa görüşme notu" />
+      </label>
       {error ? <div className="auth-error">{error}</div> : null}
-      <button className="primary-button auth-submit" type="submit" disabled={isPending}>
-        {isPending ? "Kaydediliyor..." : "Not ekle"}
-      </button>
+      <div className="agenda-entry-form__footer">
+        <span>Kayıt yalnızca koç takviminde görünür.</span>
+        <button className="primary-button" type="submit" disabled={isPending}>{isPending ? "Kaydediliyor..." : "Takvime ekle"}</button>
+      </div>
     </form>
   );
 }
