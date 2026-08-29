@@ -103,19 +103,22 @@ export class NotesService {
 
   async create(dto: CreateNoteDto, actor: AuthUser) {
     try {
-      const audience = await this.resolveAudience(dto, actor);
+      const isPersonalMeeting = actor.role === "coach" && dto.noteType === "reminder" &&
+        !dto.studentId && !(dto.studentTargetIds?.length) && !(dto.parentTargetIds?.length) &&
+        !(dto.gradeLevels?.length) && !dto.targetEveryone;
+      const audience = isPersonalMeeting ? null : await this.resolveAudience(dto, actor);
 
       const note = await this.prisma.note.create({
         data: {
-          studentId: audience.anchorStudent.id,
-          coachId: actor.role === "coach" ? BigInt(actor.id) : audience.anchorStudent.coachId,
+          studentId: audience?.anchorStudent.id,
+          coachId: actor.role === "coach" ? BigInt(actor.id) : audience!.anchorStudent.coachId,
           noteType: dto.noteType,
           title: dto.title,
           content: dto.content,
           visibility: dto.visibility,
           rating: dto.rating,
           scheduledFor: dto.scheduledFor ? new Date(dto.scheduledFor) : undefined,
-          targets: audience.targets.length
+          targets: audience?.targets.length
             ? {
                 create: audience.targets,
               }
@@ -131,12 +134,12 @@ export class NotesService {
         },
       });
 
-      if (note.visibility !== "private") {
+      if (note.visibility !== "private" && audience) {
         for (const recipientUserId of audience.notificationUserIds) {
           await this.notificationsService.createForUser({
             recipientUserId,
             actorUserId: actor.id,
-            studentId: note.student.id,
+            studentId: note.student?.id,
             type: "note",
             title: "Yeni koç notu eklendi",
             body: note.title,
@@ -147,8 +150,8 @@ export class NotesService {
 
       await this.auditLogsService.log({
         actorUserId: actor.id,
-        studentId: note.student.id,
-        subjectUserId: audience.anchorStudent.userId?.toString(),
+        studentId: note.student?.id,
+        subjectUserId: audience?.anchorStudent.userId?.toString(),
         action: "note.create",
         entityType: "note",
         entityId: note.id.toString(),
@@ -215,8 +218,8 @@ export class NotesService {
 
       await this.auditLogsService.log({
         actorUserId: actor.id,
-        studentId: updated.student.id,
-        subjectUserId: updated.student.userId?.toString(),
+        studentId: updated.student?.id,
+        subjectUserId: updated.student?.userId?.toString(),
         action: "note.update",
         entityType: "note",
         entityId: updated.id.toString(),
@@ -469,11 +472,11 @@ export class NotesService {
       content: note.content,
       noteType: note.noteType,
       visibility: note.visibility,
-      studentId: note.studentId.toString(),
+      studentId: note.studentId?.toString(),
       rating: note.rating,
       scheduledFor: note.scheduledFor,
       createdAt: note.createdAt,
-      studentName: note.student.fullName,
+      studentName: note.student?.fullName ?? "Koç takvimi",
       tags: this.formatTargetLabels(note.targets ?? []),
     };
   }
