@@ -472,10 +472,10 @@ export class DashboardService {
           type: "note",
           occurredAt: note.createdAt,
           title: "Koç notu eklendi",
-          description: `${note.student.fullName} | ${note.title}`,
+          description: `${note.student?.fullName ?? "Koç takvimi"} | ${note.title}`,
           tone: "neutral",
           href: "/agenda",
-          studentName: note.student.fullName,
+          studentName: note.student?.fullName ?? "Koç takvimi",
         })),
         ...studyPlans.map((plan) => ({
           id: `plan-${plan.id.toString()}`,
