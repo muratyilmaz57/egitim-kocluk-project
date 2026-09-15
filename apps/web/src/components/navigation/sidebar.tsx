@@ -37,7 +37,7 @@ export function Sidebar({ user, collapsed, mobileOpen, onClose, onToggle }: Side
     { href: "/messages", label: "Mesajlar", icon: "messages", description: "Canlı iletişim", group: "ARAÇLAR" },
     { href: "/agenda", label: "Ajanda", icon: "agenda", description: "Notlar ve görüşmeler", group: "ARAÇLAR" },
     { href: "/library", label: "Kütüphane", icon: "library", description: "Kaynak merkezi", group: "ARAÇLAR" },
-    { href: "/settings/security", label: "Ayarlar", icon: "settings", description: "Güvenlik ve tercihler", group: "SİSTEM" },
+    { href: "/settings/profile", label: "Ayarlar", icon: "settings", description: "Profil ve tercihler", group: "SİSTEM" },
   ];
   const studentItems: NavItem[] = [
     {
@@ -55,7 +55,7 @@ export function Sidebar({ user, collapsed, mobileOpen, onClose, onToggle }: Side
     { href: "/messages", label: "Mesajlar", icon: "messages", description: "Koç ile anlık iletişim", group: "İLETİŞİM" },
     { href: "/agenda", label: "Notlarım", icon: "agenda", description: "Koç notları ve hatırlatma", group: "İLETİŞİM" },
     { href: "/library", label: "Kaynaklar", icon: "library", description: "Video, PDF ve notlar", group: "İLETİŞİM" },
-    { href: "/settings/security", label: "Ayarlar", icon: "settings", description: "Güvenlik ve hesap ayarları", group: "SİSTEM" },
+    { href: "/settings/profile", label: "Ayarlar", icon: "settings", description: "Profil ve hesap ayarları", group: "SİSTEM" },
   ];
   const items = user.role === "student" ? studentItems : coachItems;
 
