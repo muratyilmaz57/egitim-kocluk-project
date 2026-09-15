@@ -123,7 +123,7 @@ export function LoginForm() {
           name="password"
           type="password"
           autoComplete="current-password"
-          defaultValue="Demo1234!"
+          defaultValue="Demo1234!!"
           required
         />
       </div>
