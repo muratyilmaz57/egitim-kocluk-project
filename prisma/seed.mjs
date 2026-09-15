@@ -5,7 +5,7 @@ import { readFileSync } from "node:fs";
 loadEnvFile();
 const prisma = new PrismaClient();
 
-const DEMO_PASSWORD = "Demo1234!";
+const DEMO_PASSWORD = "Demo1234!!";
 const PASSWORD_HASH = hashSync(DEMO_PASSWORD, 10);
 
 const now = new Date();
