@@ -29,7 +29,7 @@ export default async function LoginPage() {
         <div className="auth-hint">
           Demo hesap: <strong>coach@kocluk.local</strong>
           <br />
-          Demo sifre: <strong>Demo1234!</strong>
+          Demo sifre: <strong>Demo1234!!</strong>
           <br />
           MFA profil ayarlarindan acilabilir.
           <br />
