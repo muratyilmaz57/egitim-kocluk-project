@@ -6,6 +6,8 @@ export type AuthUser = {
   sessionId?: string | null;
   email: string;
   fullName: string;
+  phone?: string | null;
+  avatarUrl?: string | null;
   role: UserRole;
   studentProfileId?: string | null;
   coachUserId?: string | null;
