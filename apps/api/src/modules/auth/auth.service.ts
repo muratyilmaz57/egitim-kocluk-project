@@ -18,6 +18,7 @@ import { RequestPasswordResetDto } from "./dto/request-password-reset.dto";
 import { ResetPasswordDto } from "./dto/reset-password.dto";
 import { StartMfaSetupDto } from "./dto/start-mfa-setup.dto";
 import { VerifyMfaSetupDto } from "./dto/verify-mfa-setup.dto";
+import { UpdateProfileDto } from "./dto/update-profile.dto";
 import type { AuthUser, MfaMethod } from "./types/auth-user";
 import { decryptString, encryptString } from "./utils/crypto";
 import { buildOtpAuthUri, generateTotpSecret, verifyTotpCode } from "./utils/totp";
@@ -71,6 +72,41 @@ export class AuthService {
       "JWT_REFRESH_EXPIRES_IN_SECONDS",
       60 * 60 * 24 * 30,
     );
+  }
+
+  async getCurrentUser(actor: AuthUser): Promise<AuthUser> {
+    const user = await this.requireUser(actor.id);
+    return this.serializeAuthUser(user, actor.sessionId ?? null, this.isPasswordExpired(user.passwordChangedAt));
+  }
+
+  async getProfile(actor: AuthUser) {
+    const user = await this.requireUser(actor.id);
+    return { id: user.id.toString(), role: user.role, fullName: user.fullName, email: user.email, phone: user.phone, avatarUrl: user.avatarUrl };
+  }
+
+  async updateProfile(actor: AuthUser, dto: UpdateProfileDto) {
+    const fullName = dto.fullName?.trim();
+    const email = dto.email?.trim().toLowerCase();
+    const phone = dto.phone?.trim() || null;
+    if (email) {
+      const existing = await this.prisma.user.findFirst({ where: { email, id: { not: BigInt(actor.id) } }, select: { id: true } });
+      if (existing) throw new BadRequestException("Bu e-posta adresi zaten kullanılıyor.");
+    }
+    await this.prisma.$transaction(async (tx) => {
+      await tx.user.update({
+        where: { id: BigInt(actor.id) },
+        data: {
+          ...(fullName ? { fullName } : {}),
+          ...(email ? { email } : {}),
+          ...(dto.phone !== undefined ? { phone } : {}),
+          ...(dto.avatarUrl !== undefined ? { avatarUrl: dto.avatarUrl || null } : {}),
+        },
+      });
+      if (actor.role === "student" && dto.avatarUrl !== undefined) {
+        await tx.student.updateMany({ where: { userId: BigInt(actor.id) }, data: { photoUrl: dto.avatarUrl || null } });
+      }
+    });
+    return this.getProfile(actor);
   }
 
   createCaptcha() {
@@ -693,6 +729,8 @@ export class AuthService {
       id: bigint;
       email: string;
       fullName: string;
+      phone?: string | null;
+      avatarUrl?: string | null;
       role: AuthUser["role"];
       linkedStudent?: { id: bigint; coachId: bigint } | null;
       mfaEnabled: boolean;
@@ -706,6 +744,8 @@ export class AuthService {
       sessionId,
       email: user.email,
       fullName: user.fullName,
+      phone: user.phone ?? null,
+      avatarUrl: user.avatarUrl ?? null,
       role: user.role,
       studentProfileId: user.linkedStudent?.id.toString() ?? null,
       coachUserId: user.linkedStudent?.coachId.toString() ?? null,

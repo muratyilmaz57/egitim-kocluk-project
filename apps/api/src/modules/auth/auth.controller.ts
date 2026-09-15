@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, UseGuards } from "@nestjs/common";
+import { Body, Controller, Get, Patch, Post, UseGuards } from "@nestjs/common";
 import { AuthService } from "./auth.service";
 import { ChangePasswordDto } from "./dto/change-password.dto";
 import { DisableMfaDto } from "./dto/disable-mfa.dto";
@@ -12,6 +12,7 @@ import { LoginDto } from "./dto/login.dto";
 import { RefreshTokenDto } from "./dto/refresh-token.dto";
 import type { AuthUser } from "./types/auth-user";
 import { VerifyMfaSetupDto } from "./dto/verify-mfa-setup.dto";
+import { UpdateProfileDto } from "./dto/update-profile.dto";
 
 @Controller("auth")
 export class AuthController {
@@ -50,7 +51,19 @@ export class AuthController {
   @Get("me")
   @UseGuards(JwtAuthGuard)
   me(@CurrentUser() user: AuthUser) {
-    return user;
+    return this.authService.getCurrentUser(user);
+  }
+
+  @Get("profile")
+  @UseGuards(JwtAuthGuard)
+  profile(@CurrentUser() user: AuthUser) {
+    return this.authService.getProfile(user);
+  }
+
+  @Patch("profile")
+  @UseGuards(JwtAuthGuard)
+  updateProfile(@CurrentUser() user: AuthUser, @Body() dto: UpdateProfileDto) {
+    return this.authService.updateProfile(user, dto);
   }
 
   @Get("security")
