@@ -100,13 +100,13 @@ export function AppShellFrame({
               <AppIcon name="activity" />
             </Link>
             <NotificationMenu notifications={notifications} />
-            <div className="topbar__profile">
-              <span className="topbar__avatar">{initials || "FT"}</span>
+            <Link className="topbar__profile" href="/settings/profile" aria-label="Profilimi aç">
+              <span className="topbar__avatar">{user.avatarUrl ? <img src={user.avatarUrl} alt="" /> : initials || "FT"}</span>
               <div className="topbar__profile-meta">
                 <strong>{user.fullName}</strong>
                 <span>{user.role === "student" ? "Öğrenci" : user.role === "admin" ? "Yönetici" : "Koç"}</span>
               </div>
-            </div>
+            </Link>
             <form action="/api/session/logout" method="post">
               <button className="topbar__icon-button" type="submit" aria-label="Çıkış yap">
                 <AppIcon name="logout" />
