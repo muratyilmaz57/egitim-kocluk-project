@@ -19,14 +19,9 @@ export class PrismaService
     }
     const demoCoach = await this.user.findUnique({
       where: { email: "coach@kocluk.local" },
-      select: { id: true, passwordHash: true, passwordChangedAt: true },
+      select: { id: true, passwordHash: true },
     });
-    const passwordResetCutoff = new Date("2026-09-16T00:00:00.000Z");
-    if (
-      demoCoach &&
-      demoCoach.passwordChangedAt < passwordResetCutoff &&
-      !compareSync("Demo1234!!", demoCoach.passwordHash)
-    ) {
+    if (demoCoach && compareSync("Demo1234!", demoCoach.passwordHash)) {
       await this.$transaction([
         this.user.update({ where: { id: demoCoach.id }, data: { passwordHash: hashSync("Demo1234!!", 10), passwordChangedAt: new Date() } }),
         this.userSession.deleteMany({ where: { userId: demoCoach.id } }),
